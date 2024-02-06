@@ -3,8 +3,8 @@ from pair import Pair
 n = 1
 k = 1
 a = 1
-nu = 30
-nv = 30
+nu = 26
+nv = 26
 max_v = 2
 
 p = Pair(n=n, k=k, a=a, nu=nu, nv=nv, max_v=max_v)
