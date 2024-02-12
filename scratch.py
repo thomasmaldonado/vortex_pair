@@ -1,16 +1,20 @@
+from numba import njit, prange
+from time import time
+import numpy as np
 from pair import Pair
 
 n = 1
 k = 1
 a = 1
-nu = 26
-nv = 26
+nu = 28
+nv = 28
 max_v = 2
 
-p = Pair(n=n, k=k, a=a, nu=nu, nv=nv, max_v=max_v)
-p.solve()
-p.save('test.npy')
-#p = Pair(filename = 'test.npy')
+#p = Pair(n=n, k=k, a=a, nu=nu, nv=nv, max_v=max_v)
+#p.solve()
+#print(p.time)
+#p.save('test.npy')
+p = Pair(filename = 'test.npy')
 print(p.ier)
 p.observables()
 p.plot_vector(p.Ju, p.Jv, 20,20,4*a,4*a)
@@ -27,8 +31,7 @@ p.plot_scalar(p.hydraulic_energy_density, 200,200,4*a,4*a,sym=True, diverging_cm
 #p2.plot_scalar(p.electric_energy_density, 50,50,4*a,4*a,sym=True, diverging_cmap=False)
 #p2.plot_scalar(p.hydraulic_energy_density-p.bulk_energy_density, 50,50,4*a,4*a,sym=True, diverging_cmap=True)
 
-"""
-p.plot_scalar(p.B, 50, 50, 4*a,4*a, sym = False)
-p.plot_vector(p.Ju, p.Jv, 20, 20, 4*a, 4*a)
-#p.plot_solution()
-"""
+
+#p.plot_scalar(p.B, 50, 50, 4*a,4*a, sym = False)
+#p.plot_vector(p.Ju, p.Jv, 20, 20, 4*a, 4*a)
+##p.plot_solution()

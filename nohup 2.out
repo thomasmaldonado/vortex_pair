@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/Users/tommymaldonado/Desktop/Grad School/research/papers/vortex_pair/vortex_antivortex_pair.py", line 1, in <module>
+    from sympy import symbols, Function, cos, sin, diff
+ModuleNotFoundError: No module named 'sympy'
+145583.31229806482
+[104.76190476  52.02380952  34.28571429  25.29761905  19.80952381
+  16.07142857  13.33333333  11.2202381    9.52380952   8.11904762
+   6.92640693   5.89285714   4.98168498   4.16666667   3.42857143
+   2.75297619   2.12885154   1.54761905   1.00250627   0.48809524]
+Traceback (most recent call last):
+  File "/Users/tommymaldonado/Desktop/Grad School/research/papers/vortex_pair/vortex_antivortex_pair.py", line 441, in <module>
+    solution, infodict, ier, mesg = fsolve(f, x0, full_output = True)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tommymaldonado/anaconda3/lib/python3.11/site-packages/scipy/optimize/_minpack_py.py", line 162, in fsolve
+    res = _root_hybr(func, x0, args, jac=fprime, **options)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tommymaldonado/anaconda3/lib/python3.11/site-packages/scipy/optimize/_minpack_py.py", line 239, in _root_hybr
+    retval = _minpack._hybrd(func, x0, args, 1, xtol, maxfev,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tommymaldonado/anaconda3/lib/python3.11/site-packages/numba/core/serialize.py", line 30, in _numba_unpickle
+    def _numba_unpickle(address, bytedata, hashed):
+    
+KeyboardInterrupt

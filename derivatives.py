@@ -1,9 +1,11 @@
 ########## DERIVATIVE FUNCTIONS ##########
 
 import numpy as np
+from numba import njit, prange
 # function for accessing elements outside of the computation domain 
 # boundaries[0] and boundaries[-1] specifies the value that the function should take to the left and to the right
 # of the computational domain, respectively
+@njit
 def safe_get(f, i, boundaries = None):
     if boundaries is not None:
         if i < 0:
@@ -21,6 +23,7 @@ def safe_get(f, i, boundaries = None):
             return f[i]
 
 # central difference scheme
+@njit(parallel = True)
 def d(f, h, n = 1, boundaries = None):
     if n == 0:
         return f
@@ -34,7 +37,7 @@ def d(f, h, n = 1, boundaries = None):
         coeffs = [[-2, 1], [-1, -4], [0, 6], [1, -4], [2, 1]]
     nx = len(f)
     r = np.zeros(nx)
-    for i in range(nx):
+    for i in prange(nx):
         for c in coeffs:
             loc = c[0]
             val = c[1]
@@ -42,5 +45,6 @@ def d(f, h, n = 1, boundaries = None):
     return r/(h ** n)
 
 # integration function
+@njit(parallel = True)
 def integrate(f, dx):
     return np.sum(f)*dx

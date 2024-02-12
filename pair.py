@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 from time import time
 from scipy.optimize import fsolve
 from tqdm import tqdm
+from numba import njit, prange
 
 class Pair: 
     def __init__(self, **kwargs):
@@ -34,33 +35,40 @@ class Pair:
         data[0:7] = [self.n, self.k, self.a, self.nu, self.nv, self.max_v, self.ier]
         data[7:] = self.solution
         np.save(filename, data)
-
+    
+    @njit(parallel = True)
     def dfunc_du(self, func, N = 1):
         result = np.zeros(func.shape)
-        for j in range(func.shape[1]):
+        for j in prange(func.shape[1]):
             boundary_left = func[-1,j]
             boundary_right = func[0,j]
             result[:,j] = d(func[:,j], self.du, N, boundaries = [boundary_left, boundary_right])
         return result
     
+    @njit
     def dV_du(self, V, N = 1):
         return self.dfunc_du(V, N)
 
+    @njit
     def dFu_du(self, Fu, N = 1):
         return self.dfunc_du(Fu, N)
 
+    @njit
     def dFv_du(self, Fv, N = 1):
         return self.dfunc_du(Fv, N)
 
+    @njit
     def dF_du(self, Fu, Fv, N = 1):
         return self.dfunc_du(Fu, N), self.dfunc_du(Fv, N)
         
+    @njit
     def dC_du(self, C, N = 1):
         return self.dfunc_du(C, N)
 
+    @njit(parallel = True)
     def dV_dv(self, V, N = 1):
         result = np.zeros(V.shape)
-        for i in range(V.shape[0]):
+        for i in prange(V.shape[0]):
             if i == 0:
                 boundary_left = -1
             else:
@@ -69,17 +77,20 @@ class Pair:
             result[i,:] = d(V[i,:], self.dv, N, boundaries = [boundary_left, boundary_right])
         return result
 
+    @njit(parallel = True)
     def dF_dv(self, Fu, Fv, N = 1):
         Fu_result = np.zeros(Fu.shape)
         Fv_result = np.zeros(Fv.shape)
         xs, ys = [], []
-        for i, u in enumerate(self.us):
+        for i in prange(len(self.us)):
+            u = self.us[i]
             x, y = BP2cart(Fu[i, -1], Fv[i, -1], u, self.vs[-1])
             xs.append(x)
             ys.append(y)
         avg_x = np.mean(xs)
         avg_y = np.mean(ys)
-        for i, u in enumerate(self.us):
+        for i in prange(len(self.us)):
+            u = self.us[i]
             if i == 0:
                 boundary_left_u = self.n / self.a
             else:
@@ -90,9 +101,10 @@ class Pair:
             Fv_result[i,:] = d(Fv[i,:], self.dv, N, boundaries = [boundary_left_v, boundary_right_v])
         return Fu_result, Fv_result
 
+    @njit(parallel = True)
     def dC_dv(self, C, N = 1):
         result = np.zeros(C.shape)
-        for i in range(C.shape[0]):
+        for i in prange(C.shape[0]):
             if i == 0:
                 boundary_left = np.sqrt(-self.j)
             else:
@@ -101,6 +113,7 @@ class Pair:
             result[i,:] = d(C[i,:], self.dv, N, boundaries = [boundary_left, boundary_right])
         return result
 
+    @njit
     def split(self, sol):
         nunv = self.nu*self.nv
         V = np.reshape(sol[0:nunv], (self.nu, self.nv))
@@ -109,6 +122,7 @@ class Pair:
         C = np.reshape(sol[3*nunv:], (self.nu, self.nv))
         return V, Fu, Fv, C
     
+    @njit
     def split_derivatives(self, sol):
         V, Fu, Fv, C = self.split(sol)
         V_u = self.dV_du(V, N = 1)
@@ -134,6 +148,7 @@ class Pair:
     
     def solve(self):
         def f(V_Fu_Fv_C):
+            print('a ', time())
             V_derivatives, Fu_derivatives, Fv_derivatives, C_derivatives = self.split_derivatives(V_Fu_Fv_C)
             V, V_u, V_v, V_uu, V_uv, V_vv = V_derivatives
             Fu, Fu_u, Fu_v, Fu_uu, Fu_uv, Fu_vv = Fu_derivatives
@@ -145,6 +160,7 @@ class Pair:
             eq0_C = np.zeros((self.nu, self.nv))
             # define arguments for the lambdified expression from sympy and fill the result array
             args = np.zeros(29)
+            print('x', time())
             for i, u in enumerate(self.us):
                 for j, v in enumerate(self.vs):
                     args = [V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j]]
@@ -156,6 +172,7 @@ class Pair:
                     eq0_Fu[i,j] = eq0_Fu_lambdified(*args)
                     eq0_Fv[i,j] = eq0_Fv_lambdified(*args)
                     eq0_C[i,j] = eq0_C_lambdified(*args)
+            print('b ', time())            
             return np.concatenate([eq0_V.flatten(), eq0_Fu.flatten(), eq0_Fv.flatten(), eq0_C.flatten()])
 
         # solve nonlinear problem
@@ -168,6 +185,7 @@ class Pair:
         end = time()
         self.time = end-start
 
+    @njit(parallel = True)
     def observables(self):
         V_derivatives, Fu_derivatives, Fv_derivatives, C_derivatives = self.split_derivatives(self.solution)
         self.V, self.V_u, self.V_v, self.V_uu, self.V_uv, self.V_vv = V_derivatives
@@ -177,16 +195,22 @@ class Pair:
         self.Ju = np.zeros((self.nu, self.nv))
         self.Jv = np.zeros((self.nu, self.nv))
         self.rho = np.zeros((self.nu, self.nv))
-        for i, u in enumerate(self.us):
-            for j, v in enumerate(self.vs):
+        for i in prange(len(self.us)):
+            u = self.us[i]
+            for j in range(len(self.vs)):
+                v = self.vs[j]
                 self.Ju[i,j] = -(self.Fu[i,j] - self.n * np.cosh(v)/self.a) * self.C[i,j]**2
                 self.Jv[i,j] = -(self.Fv[i,j]) * self.C[i,j]**2
                 self.rho[i,j] = - self.C[i,j]**2 * self.V[i,j]
+        print('done')
+        """
         self.Eu = np.zeros((self.nu, self.nv))
         self.Ev = np.zeros((self.nu, self.nv))
         self.B = np.zeros((self.nu, self.nv))
-        for i, u in enumerate(self.us):
-            for j, v in enumerate(self.vs):
+        for i in prange(len(self.us)):
+            u = self.us[i]
+            for j in range(len(self.vs)):
+                v = self.vs[j]
                 E_args = [self.V[i,j], self.V_u[i,j], self.V_v[i,j], self.V_uu[i,j], self.V_uv[i,j], self.V_vv[i,j], u, v, self.a, self.n]
                 self.Eu[i,j], self.Ev[i,j] = Eu_lambdified(*E_args), Ev_lambdified(*E_args)
                 B_args = [self.Fu[i,j], self.Fu_u[i,j], self.Fu_v[i,j], self.Fu_uu[i,j], self.Fu_uv[i,j], self.Fu_vv[i,j]]
@@ -197,7 +221,7 @@ class Pair:
         self.magnetic_energy_density = (self.B**2)/2
         self.hydraulic_energy_density = self.C**2 * self.V**2
         self.bulk_energy_density = - self.j
-    
+        """
     def plot_solution(self):
         V, Fu, Fv, C = self.split(self.solution)
         plt.imshow(V, cmap='hot', interpolation='nearest')
