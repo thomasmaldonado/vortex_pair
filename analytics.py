@@ -2,6 +2,7 @@ from sympy import symbols, Function, cos, sin, diff
 from sympy.utilities import lambdify
 from sympy.vector import CoordSys3D
 from sympy.functions.elementary.hyperbolic import cosh, sinh
+from numba import njit
 
 # define symbols and functions
 u, v, a, j, n= symbols('u v a j n')
@@ -116,3 +117,12 @@ B_args.extend([u,v,a,n])
 #print(len(B_args))
 
 B_lambdified = lambdify(B_args, B)
+
+
+eq0_V_lambdified = njit(eq0_V_lambdified)
+eq0_Fu_lambdified = njit(eq0_Fu_lambdified)
+eq0_Fv_lambdified = njit(eq0_Fv_lambdified)
+eq0_C_lambdified = njit(eq0_C_lambdified)
+Eu_lambdified = njit(Eu_lambdified)
+Ev_lambdified = njit(Ev_lambdified)
+B_lambdified = njit(B_lambdified)
