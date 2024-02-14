@@ -1,48 +1,32 @@
 ########## DERIVATIVE FUNCTIONS ##########
 
 import numpy as np
-from numba import njit, prange
+from numba import njit
 # function for accessing elements outside of the computation domain 
 # boundaries[0] and boundaries[-1] specifies the value that the function should take to the left and to the right
 # of the computational domain, respectively
-@njit
-def safe_get(f, i, boundaries = None):
-    if boundaries is not None:
-        if i < 0:
-            return boundaries[0]
-        elif i >= len(f):
-            return boundaries[1]
-        else:
-            return f[i]
-    else:
-        if i >= len(f):
-            return f[-1]
-        elif i < 0:
-            return f[0]
-        else:
-            return f[i]
+# central difference scheme 
+# axis = axis along which derivatives are taken
 
-# central difference scheme
-@njit(parallel = True)
-def d(f, h, n = 1, boundaries = None):
-    if n == 0:
-        return f
-    elif n == 1:
-        coeffs = [[-1, -1/2], [1, 1/2]]
+@njit(cache = True)
+def d(f, h, n, boundary_left, boundary_right, axis = 0):
+    if axis == 1:
+        f = f.transpose()
+    boundary_left = np.reshape(boundary_left, (1, f.shape[1]))
+    boundary_right = np.reshape(boundary_right, (1, f.shape[1]))
+    f_b = np.concatenate((boundary_left, f, boundary_right))
+    f_b = f_b.transpose()
+    f_b_shape = f_b.shape
+    f_b = f_b.flatten()
+    if n == 1:
+        padded = (-(1/2)*np.roll(f_b, 1) + (1/2)*np.roll(f_b, -1))/h**n
     elif n == 2:
-        coeffs = [[-1, 1], [0, -2], [1, 1]]
-    elif n == 3:
-        coeffs = [[-2, -1/2], [-1, 1], [1, -1], [2, 1/2]]
-    elif n == 4:
-        coeffs = [[-2, 1], [-1, -4], [0, 6], [1, -4], [2, 1]]
-    nx = len(f)
-    r = np.zeros(nx)
-    for i in prange(nx):
-        for c in coeffs:
-            loc = c[0]
-            val = c[1]
-            r[i] += safe_get(f, i + loc, boundaries) * val
-    return r/(h ** n)
+        padded = (np.roll(f_b, 1) -2*f_b + np.roll(f_b, -1))/h**n
+    f_b = np.reshape(padded, f_b_shape)
+    f_b = f_b.transpose()[1:-1,:]
+    if axis == 1:
+        f_b = f_b.transpose()
+    return f_b
 
 # integration function
 @njit(parallel = True)
