@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=vortex_pair   # create a short name for your job
+#SBATCH --job-name=pair   # create a short name for your job
 #SBATCH --nodes=1            # node count
 #SBATCH --ntasks=1           # how many instances of your command are run, total, across all nodes
 #SBATCH --cpus-per-task=1    # cpu-cores per task (>1 if multi-threaded tasks)

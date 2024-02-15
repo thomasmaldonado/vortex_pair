@@ -1,7 +1,2 @@
 usage: conda [-h] [--no-plugins] [-V] COMMAND ...
 conda: error: argument COMMAND: invalid choice: 'activate' (choose from 'clean', 'compare', 'config', 'create', 'info', 'init', 'install', 'list', 'notices', 'package', 'remove', 'uninstall', 'rename', 'run', 'search', 'update', 'upgrade', 'doctor', 'content-trust', 'env')
-0.0 1 The solution converged. 22.5061993598938
-0.25 1 The solution converged. 14.341472625732422
-0.5 1 The solution converged. 16.195483207702637
-0.75 1 The solution converged. 16.268205881118774
-1.0 1 The solution converged. 15.085604429244995

@@ -1,0 +1,20 @@
+0.0 1 The solution converged. 19.863590002059937
+0.25 1 The solution converged. 14.671132326126099
+0.5 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 23.12287950515747
+Traceback (most recent call last):
+  File "/u/tm7623/vortex_pair/solver.py", line 216, in <module>
+    raise Exception(mesg)
+Exception: The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations.
+Traceback (most recent call last):
+  File "/u/tm7623/vortex_pair/plotter.py", line 8, in <module>
+    A, K, N, NU, NV, ier, solution = load(file)
+                                     ^^^^^^^^^^
+  File "/u/tm7623/vortex_pair/files.py", line 4, in load
+    arr = np.load(file)
+          ^^^^^^^^^^^^^
+  File "/u/tm7623/miniconda3/lib/python3.11/site-packages/numpy/lib/npyio.py", line 427, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'gamma.npy'
