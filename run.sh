@@ -5,5 +5,6 @@
 
 for n in {5..10}; 
 do
-    sbatch run.slurm $n/10 $n
+    a = "scale=2 ; $n / 10" | bc
+    sbatch run.slurm $a/10 $n
 done
