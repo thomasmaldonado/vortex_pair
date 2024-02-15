@@ -14,24 +14,13 @@ N = float(sys.argv[3])
 NU = int(sys.argv[4])
 NX = NV = int(sys.argv[5])
 STEPS = int(sys.argv[6])
-file = sys.argv[7]
+file = sys.argv[7] + '.npy'
 
 Ns = np.linspace(0, N, STEPS + 1)
 
 for N in Ns:
-    """
-    A = 1/2
-    K = 1/np.sqrt(2)
-    N = 1
-    NU = 10 # even
-    NX = NV = 10
-    x0_file = 'x0.npy'
-    x0_file = None
-    solution_file = 'solution.npy'
-    """
-
     J = -4/K**4
-
+    
     us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
     xs = np.linspace(0, A, NX+2)[1:-1]
 
@@ -195,17 +184,7 @@ for N in Ns:
         eq0_V = result[0:NUNV]
         eq0_C = result[-NUNV:]
         return np.append(eq0_V, eq0_C)
-    """"
-    if N:
-        x0 = np.zeros(4*NUNV, dtype = float)
-        x0[0:NUNV] = -1
-        Fu0 = np.zeros((NU,NV))
-        for j, v in enumerate(vs):
-            Fu0[:, j] = N * np.cosh(v) / A
-        x0[NUNV:2*NUNV] = Fu0.flatten()
-        x0[3*NUNV:] = np.sqrt(-J)
-    else:
-    """
+    
     if N == 0:
         x0_reduced = np.zeros(2*NUNV, dtype = float)
         x0_reduced[0:NUNV] = -1
@@ -223,6 +202,7 @@ for N in Ns:
     print(N, ier, mesg, end - start)
     x0 = solution
     V, Fu, Fv, C = unpack(x0)
+    """
     plt.imshow(V, cmap='hot', interpolation='nearest')
     plt.show()
     plt.imshow(Fu, cmap='hot', interpolation='nearest')
@@ -231,6 +211,7 @@ for N in Ns:
     plt.show()
     plt.imshow(C, cmap='hot', interpolation='nearest')
     plt.show()
+    """
     if ier != 1:
         raise Exception(mesg)
-#save(file, A, K, NF, NU, NX, ier, solution)
+save(file, A, K, N, NU, NV, ier, solution)
