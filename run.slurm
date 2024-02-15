@@ -12,4 +12,4 @@
 #SBATCH --mail-type=fail         # send email if job fails
 #SBATCH --mail-user=maldonado@princeton.edu
 
-bash run.sh
+python -u solver.py $1 0.7 1 20 20 4 $2
