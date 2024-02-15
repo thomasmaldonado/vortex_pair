@@ -1,4 +1,5 @@
 from analytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified
+from coords import v_of_vp_lambdified, dvp_dv_lambdified, d2vp_dv2_lambdified
 from derivatives import d
 import numpy as np
 from numba import njit, prange
@@ -8,58 +9,59 @@ from files import load, save
 from time import time
 import sys
 
-A_idx = int(sys.argv[1])
 As = np.linspace(0.5, 1, 10)
-A = As[A_idx]
 
+A_idx = int(sys.argv[1])
 K = float(sys.argv[2])
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
-NX = NV = int(sys.argv[5])
+NV = int(sys.argv[5])
 STEPS = int(sys.argv[6])
-file = sys.argv[7] + '.npy'
+file = 'data/' + sys.argv[7] + '.npy'
+A = As[A_idx]
+J = -4/K**4
+
+us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
+vps = np.linspace(0, 1, NV+2)[1:-1]
+args = (vps, A, J)
+vs = v_of_vp_lambdified(*args)
+
+du = us[1]-us[0]
+dvp = vps[1]-vps[0]
+
+dvp_dv = np.zeros((NU, NV))
+d2vp_dv2 = np.zeros((NU, NV))
+
+# define coordinate transformation
+NUNV = NU*NV
+for j, v in enumerate(vs):
+    args = (v, A, J)
+    dvp_dv[:,j] = dvp_dv_lambdified(*args)
+    d2vp_dv2[:,j] = d2vp_dv2_lambdified(*args)
+
+@njit
+def d_du(f, n):
+    boundary_left = np.ascontiguousarray(f[-1,:])
+    boundary_right = np.ascontiguousarray(f[0,:])
+    return d(f, du, n, boundary_left, boundary_right, axis = 0)
+
+@njit
+def d_dvp(f, n, boundary_left, boundary_right):
+    return d(f, dvp, n, boundary_left, boundary_right, axis = 1)
+
+@njit
+def d_dv(f, n, boundary_left, boundary_right):
+    if n == 0:
+        return f
+    df_dvp = d_dvp(f, 1, boundary_left, boundary_right)
+    if n == 1:
+        return df_dvp * dvp_dv
+    df2_dx2 = d_dvp(f, 2, boundary_left, boundary_right)
+    return df2_dx2 * dvp_dv**2 + df_dvp * d2vp_dv2
 
 Ns = np.linspace(0, N, STEPS + 1)
 
 for N in Ns:
-    J = -4/K**4
-
-    us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
-    xs = np.linspace(0, A, NX+2)[1:-1]
-
-    du = us[1]-us[0]
-    dx = xs[1]-xs[0]
-
-    dx_dv = np.zeros((NU, NX))
-    dx2_dv2 = np.zeros((NU, NX))
-
-    # define coordinate transformation
-    NUNV = NU*NV
-    vs = np.log((A+xs)/(A-xs))
-    for j, v in enumerate(vs):
-        dx_dv[:,j] = A / (1+np.cosh(v))
-        dx2_dv2[:,j] = -A * np.sinh(v) / (1 + np.cosh(v))**2
-
-    @njit
-    def d_du(f, n):
-        boundary_left = np.ascontiguousarray(f[-1,:])
-        boundary_right = np.ascontiguousarray(f[0,:])
-        return d(f, du, n, boundary_left, boundary_right, axis = 0)
-
-    @njit
-    def d_dx(f, n, boundary_left, boundary_right):
-        return d(f, dx, n, boundary_left, boundary_right, axis = 1)
-
-    @njit
-    def d_dv(f, n, boundary_left, boundary_right):
-        if n == 0:
-            return f
-        df_dx = d_dx(f, 1, boundary_left, boundary_right)
-        if n == 1:
-            return df_dx * dx_dv
-        df2_dx2 = d_dx(f, 2, boundary_left, boundary_right)
-        return df2_dx2 * dx_dv**2 + df_dx * dx2_dv2
-
     @njit
     def dV_du(V, n):
         return d_du(V, n)
@@ -176,7 +178,7 @@ for N in Ns:
         result = np.append(result, eq0_C.flatten())
         return result
 
-    @njit
+    @njit(parallel = True)
     def f_reduced(V_C):
         V, C = V_C[0:NUNV], V_C[NUNV:], 
         Fu, Fv = np.zeros(NUNV), np.zeros(NUNV)
@@ -205,16 +207,6 @@ for N in Ns:
     print(N, ier, mesg, end - start)
     x0 = solution
     V, Fu, Fv, C = unpack(x0)
-    """
-    plt.imshow(V, cmap='hot', interpolation='nearest')
-    plt.show()
-    plt.imshow(Fu, cmap='hot', interpolation='nearest')
-    plt.show()
-    plt.imshow(Fv, cmap='hot', interpolation='nearest')
-    plt.show()
-    plt.imshow(C, cmap='hot', interpolation='nearest')
-    plt.show()
-    """
     if ier != 1:
         raise Exception(mesg)
 save(file, A, K, N, NU, NV, ier, solution)
