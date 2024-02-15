@@ -9,10 +9,11 @@ from files import load, save
 from time import time
 import sys
 
-As = np.linspace(0.5, 1, 10)
+As = np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
-K = float(sys.argv[2])
+#K = float(sys.argv[2])
+K = 1/np.sqrt(2)
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])
