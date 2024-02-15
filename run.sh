@@ -5,6 +5,6 @@
 
 for n in {0..9}; 
 do
-    echo $n
-    #sbatch run.slurm $a/10 $n
+    #echo $n
+    sbatch run.slurm $n
 done
