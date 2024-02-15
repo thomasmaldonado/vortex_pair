@@ -8,7 +8,10 @@ from files import load, save
 from time import time
 import sys
 
-A = float(sys.argv[1])
+A_idx = int(sys.argv[1])
+As = np.linspace(0.5, 1, 10)
+A = As[A_idx]
+
 K = float(sys.argv[2])
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
@@ -20,7 +23,7 @@ Ns = np.linspace(0, N, STEPS + 1)
 
 for N in Ns:
     J = -4/K**4
-    
+
     us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
     xs = np.linspace(0, A, NX+2)[1:-1]
 

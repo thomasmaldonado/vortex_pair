@@ -3,8 +3,8 @@
 #python solver.py 0.5 0.7 1 20 20 8 epsilon
 #python plotter.py epsilon
 
-for n in {5..10}; 
+for n in {0..9}; 
 do
-    a = "scale=2 ; $n / 10" | bc
-    sbatch run.slurm $a/10 $n
+    echo $n
+    #sbatch run.slurm $a/10 $n
 done
