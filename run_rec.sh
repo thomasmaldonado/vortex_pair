@@ -5,5 +5,5 @@
 
 for n in {0..99}; 
 do
-    sbatch run_rec.slurm $n
+    sbatch run.slurm $n
 done
