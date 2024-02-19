@@ -19,6 +19,7 @@ NU = int(sys.argv[4])
 NV = int(sys.argv[5])
 init_file = 'data/' + sys.argv[6] + '.npy'
 file = 'data/' + sys.argv[7] + '.npy'
+print(init_file, file)
 A = As[A_idx]
 J = -4/K**4
 
@@ -176,7 +177,7 @@ def f(V_Fu_Fv_C, N):
     result = np.append(result, eq0_C.flatten())
     return result
 
-_, _, _, _, _, _, x0 = load(file)
+_, _, _, _, _, _, x0 = load(init_file)
 
 def f_reduced(V_Fu_Fv_C):
     return f(V_Fu_Fv_C, NF)
