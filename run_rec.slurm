@@ -11,5 +11,6 @@
 ##SBATCH --mail-type=end          # send email when job ends
 ##SBATCH --mail-type=fail         # send email if job fails
 ##SBATCH --mail-user=maldonado@princeton.edu
-
+module load anaconda3/2023.9
+conda activate
 python -u solver_recursive.py $1 0.7 1 20 20 $1
