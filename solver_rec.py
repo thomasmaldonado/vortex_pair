@@ -9,6 +9,8 @@ from files import load, save
 from time import time
 import sys
 
+tol = 1e-12
+
 As = np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
@@ -190,7 +192,7 @@ x0_reduced = np.zeros(2*NUNV, dtype = float)
 x0_reduced[0:NUNV] = -1
 x0_reduced[-NUNV:] = np.sqrt(-J)
 start = time()
-solution_reduced, infodict, ier, mesg = fsolve(f_reduced, x0_reduced, full_output = True)
+solution_reduced, infodict, ier, mesg = fsolve(f_reduced, x0_reduced, full_output = True, xtol = tol)
 end = time()
 solution0 = np.zeros(4*NUNV)
 solution0[0:NUNV] = solution_reduced[0:NUNV]
@@ -202,7 +204,7 @@ def solvefor(N, N0, x0):
     def f_reduced(V_Fu_Fv_C):
         return f(V_Fu_Fv_C, N)
     start = time()
-    solution, infodict, ier, mesg = fsolve(f_reduced, x0, full_output = True)
+    solution, infodict, ier, mesg = fsolve(f_reduced, x0, full_output = True, xtol = tol)
     end = time()
     print(N, ier, mesg, end - start)
     if ier == 1:
