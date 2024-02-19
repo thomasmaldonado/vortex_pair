@@ -1,7 +1,0 @@
-1.0 5 The iteration is not making good progress, as measured by the 
-  improvement from the last ten iterations. 16.33157181739807
-0.5 1 The solution converged. 14.740661859512329
-1.0 4 The iteration is not making good progress, as measured by the 
-  improvement from the last five Jacobian evaluations. 38.995344400405884
-0.75 1 The solution converged. 9.8296217918396
-1.0 1 The solution converged. 14.514790058135986
