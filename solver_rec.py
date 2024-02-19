@@ -204,7 +204,7 @@ def solvefor(N, N0, x0):
     start = time()
     solution, infodict, ier, mesg = fsolve(f_reduced, x0, full_output = True)
     end = time()
-    1(N, ier, mesg, end - start)
+    print(N, ier, mesg, end - start)
     if ier == 1:
         return solution
     else:
