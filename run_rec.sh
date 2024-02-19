@@ -5,5 +5,6 @@
 
 for n in {0..99}; 
 do
+	
     sbatch run.slurm $n
 done

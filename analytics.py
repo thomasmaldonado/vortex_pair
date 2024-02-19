@@ -126,3 +126,12 @@ eq0_C_lambdified = njit(eq0_C_lambdified)
 Eu_lambdified = njit(Eu_lambdified)
 Ev_lambdified = njit(Ev_lambdified)
 B_lambdified = njit(B_lambdified)
+
+Eu_h = (Eu*h).doit()
+Ev_h = (Ev*h).doit()
+B_h = (B*h).doit()
+
+Eu_h_lambdified = njit(lambdify(E_args, Eu_h))
+Ev_h_lambdified = njit(lambdify(E_args, Ev_h))
+B_h_lambdified = njit(lambdify(B_args, B_h))
+
