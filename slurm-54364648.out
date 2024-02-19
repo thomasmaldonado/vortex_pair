@@ -1,0 +1,45 @@
+1.0 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2385.3605852127075
+0.5 1 The solution converged. 3568.953753709793
+1.0 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 10647.332457780838
+0.75 1 The solution converged. 3300.36168217659
+1.0 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 8152.592460393906
+0.875 1 The solution converged. 5963.952347517014
+1.0 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 8306.95412182808
+0.9375 1 The solution converged. 3571.1643648147583
+1.0 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 5990.700754404068
+0.96875 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 8364.034004688263
+0.953125 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 9591.427832126617
+0.9453125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 4787.284206390381
+0.94140625 1 The solution converged. 3579.954772233963
+0.9453125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2381.5516419410706
+0.943359375 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2376.5955154895782
+0.9423828125 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 11991.90267443657
+0.94189453125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2438.478372335434
+0.941650390625 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2438.506915807724
+0.9415283203125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2532.6014285087585
+0.94146728515625 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2523.4795496463776
+0.941436767578125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2529.787868499756
+0.9414215087890625 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2487.3966677188873
+0.9414138793945312 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2489.149741411209
+0.9414100646972656 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2410.5689084529877
+/var/spool/slurmd/job54364648/slurm_script: line 15: 1198799 Killed                  python -u solver_recursive.py $1 0.7 1 50 50 $1
+slurmstepd: error: Detected 1 oom_kill event in StepId=54364648.batch. Some of the step tasks have been OOM Killed.

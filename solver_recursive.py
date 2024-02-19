@@ -9,6 +9,8 @@ from files import load, save
 from time import time
 import sys
 
+#tol = 1e-12
+
 As = np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])

@@ -5,6 +5,12 @@
 
 for n in {0..99}; 
 do
-	
-    sbatch run.slurm $n
+    path='data/'
+    path+=$n
+    path+='.npy'
+    if [ -f $path ]; then
+        echo $path 'exists'
+    else
+       	sbatch run_rec.slurm $n
+    fi
 done

@@ -1,0 +1,39 @@
+1.0 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2334.35333609581
+0.5 1 The solution converged. 6984.54260134697
+1.0 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 10466.503975391388
+0.75 1 The solution converged. 2325.530255317688
+1.0 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 11609.810546636581
+0.875 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 8101.188140869141
+0.8125 1 The solution converged. 4622.907995223999
+0.875 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 8158.641029596329
+0.84375 1 The solution converged. 3372.7126829624176
+0.875 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 3376.429274082184
+0.859375 1 The solution converged. 9662.72361111641
+0.875 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 6058.402643918991
+0.8671875 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 10073.31487774849
+0.86328125 1 The solution converged. 4338.900902271271
+0.8671875 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 10457.545956134796
+0.865234375 1 The solution converged. 5832.174092292786
+0.8671875 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2902.1598875522614
+0.8662109375 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 8716.484718084335
+0.86572265625 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2941.4473991394043
+0.865478515625 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 3004.711142539978
+0.8653564453125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2864.5108692646027
+0.86529541015625 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2972.160555124283
+0.865264892578125 5 The iteration is not making good progress, as measured by the 
+  improvement from the last ten iterations. 2844.118787765503
