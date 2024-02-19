@@ -9,8 +9,6 @@ from files import load, save
 from time import time
 import sys
 
-#tol = 1e-12
-
 As = np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
@@ -60,16 +58,6 @@ def d_dv(f, n, boundary_left, boundary_right):
         return df_dvp * dvp_dv
     df2_dx2 = d_dvp(f, 2, boundary_left, boundary_right)
     return df2_dx2 * dvp_dv**2 + df_dvp * d2vp_dv2
-
-"""
-def solvefor(N, N0):
-    if solver fails to produce solution for N given initial guess = solution for N0
-        return solvefor(N, solvefor((N + N0)/2), N0))
-    else
-        return solution for N
-
-solvefor(1, 0)
-"""
 
 @njit
 def dV_du(V, n):
@@ -216,7 +204,7 @@ def solvefor(N, N0, x0):
     start = time()
     solution, infodict, ier, mesg = fsolve(f_reduced, x0, full_output = True)
     end = time()
-    print(N, ier, mesg, end - start)
+    1(N, ier, mesg, end - start)
     if ier == 1:
         return solution
     else:
