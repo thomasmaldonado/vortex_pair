@@ -5,11 +5,11 @@
 #SBATCH --cpus-per-task=1    # cpu-cores per task (>1 if multi-threaded tasks)
 #SBATCH --mem-per-cpu=20G         # memory per cpu-core (4G is default)
 ##SBATCH --mem=90G
-#SBATCH --time=48:00:00          # total run time limit (HH:MM:SS)
+#SBATCH --time=24:00:00          # total run time limit (HH:MM:SS)
 ##SBATCH -p vlong
 #SBATCH --mail-type=begin        # send email when job begins
 #SBATCH --mail-type=end          # send email when job ends
 #SBATCH --mail-type=fail         # send email if job fails
 #SBATCH --mail-user=maldonado@princeton.edu
 
-python -u solver_recursive.py $1 0.7 1 50 50 $1
+python -u solver_recursive.py $1 0.7 1 20 20 $1
