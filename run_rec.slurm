@@ -13,4 +13,5 @@
 ##SBATCH --mail-user=maldonado@princeton.edu
 module load anaconda3/2023.9
 conda activate
-python -u solver_rec.py $1 0.7 1 20 20 $1
+python -u solver_rec.py $1 20 1 20 20 $1
+python -u energies.py $1

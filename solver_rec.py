@@ -11,18 +11,18 @@ import sys
 
 tol = 1e-12
 
-K = 10 * 1/np.sqrt(2)
+A_idx = int(sys.argv[1])
+K = float(sys.argv[2])
 
 As = 2*K * np.linspace(0.5, 1, 100)
 
-A_idx = int(sys.argv[1])
-#K = float(sys.argv[2])
 NF = float(sys.argv[3])
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])
 file = 'data/' + sys.argv[6] + '.npy'
 A = As[A_idx]
 J = -4/K**4
+
 
 us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
 vps = np.linspace(0, 1, NV+2)[1:-1]
