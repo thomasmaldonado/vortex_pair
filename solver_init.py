@@ -9,6 +9,8 @@ from files import load, save
 from time import time
 import sys
 
+tol = 1e-12
+
 As = np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
@@ -181,5 +183,8 @@ _, _, _, _, _, _, x0 = load(init_file)
 
 def f_reduced(V_Fu_Fv_C):
     return f(V_Fu_Fv_C, NF)
-solution, infodict, ier, mesg = fsolve(f_reduced, x0, full_output = True)
+start = time()
+solution, infodict, ier, mesg = fsolve(f_reduced, x0, full_output = True, xtol = tol)
+end = time()
+print(NF, ier, mesg, end - start)
 save(file, A, K, NF, NU, NV, ier, solution)

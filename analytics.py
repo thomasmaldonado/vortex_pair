@@ -82,7 +82,7 @@ B = curl(Au*u_hat+Av*v_hat).dot(z_hat).simplify()
 B = symbolify(B, Fu(u,v), Fu_syms)
 B = symbolify(B, Fv(u,v), Fv_syms)
 
-E = -gradient(V).doit().simplify()
+E = -gradient(V(u,v)).doit().simplify()
 Eu = symbolify(E.dot(u_hat), V(u,v), V_syms)
 Ev = symbolify(E.dot(v_hat), V(u,v), V_syms)
 
@@ -127,11 +127,10 @@ Eu_lambdified = njit(Eu_lambdified)
 Ev_lambdified = njit(Ev_lambdified)
 B_lambdified = njit(B_lambdified)
 
-Eu_h = (Eu*h).doit()
-Ev_h = (Ev*h).doit()
-B_h = (B*h).doit()
+Eu_h = (Eu*h).doit().simplify()
+Ev_h = (Ev*h).doit().simplify()
+B_h = (B*h).doit().simplify()
 
 Eu_h_lambdified = njit(lambdify(E_args, Eu_h))
 Ev_h_lambdified = njit(lambdify(E_args, Ev_h))
 B_h_lambdified = njit(lambdify(B_args, B_h))
-
