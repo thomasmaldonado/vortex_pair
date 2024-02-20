@@ -5,10 +5,10 @@ from numba import njit
 # define symbols and functions
 v, vp, a, j = symbols('v v_p a j')
 
-#v_of_vp= ln((1+vp)/(1-vp))
-k = (-4/j)**(1/4)
-xi = k/2
-v_of_vp = -ln(1 + 2 * a / xi)*(1+1/(vp-1))
+v_of_vp= ln((1+vp)/(1-vp))
+#k = (-4/j)**(1/4)
+#xi = k/2
+#v_of_vp = -ln(1 + 2 * a / xi)*(1+1/(vp-1))
 vp_of_v = solve(v_of_vp - v, vp)[0]
 
 dv_dvp = v_of_vp.diff(vp).doit().simplify()
