@@ -11,11 +11,12 @@ import sys
 
 tol = 1e-12
 
-As = np.linspace(0.5, 1, 100)
+K = 10* 1/np.sqrt(2)
+
+As = K * np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
 #K = float(sys.argv[2])
-K = 1/np.sqrt(2)
 NF = float(sys.argv[3])
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])

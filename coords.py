@@ -6,9 +6,13 @@ from numba import njit
 v, vp, a, j = symbols('v v_p a j')
 
 v_of_vp= ln((1+vp)/(1-vp))
-#k = (-4/j)**(1/4)
-#xi = k/2
-#v_of_vp = -ln(1 + 2 * a / xi)*(1+1/(vp-1))
+"""
+k = (-4/j)**(1/4)
+xi = k/2
+alpha = 0
+xminus = alpha * vp**2 + (1-alpha) * vp
+v_of_vp= ln((1+xminus)/(1-xminus))
+"""
 vp_of_v = solve(v_of_vp - v, vp)[0]
 
 dv_dvp = v_of_vp.diff(vp).doit().simplify()
