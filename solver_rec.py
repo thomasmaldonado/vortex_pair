@@ -28,6 +28,8 @@ vps = np.linspace(0, 1, NV+2)[1:-1]
 args = (vps, A, J)
 vs = v_of_vp_lambdified(*args)
 
+print('Radii:', A / np.sinh(vs))
+
 du = us[1]-us[0]
 dvp = vps[1]-vps[0]
 
