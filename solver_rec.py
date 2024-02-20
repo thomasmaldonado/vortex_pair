@@ -11,9 +11,9 @@ import sys
 
 tol = 1e-12
 
-K = 10* 1/np.sqrt(2)
+K = 10 * 1/np.sqrt(2)
 
-As = K * np.linspace(0.5, 1, 100)
+As = 2*K * np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
 #K = float(sys.argv[2])
@@ -29,7 +29,7 @@ vps = np.linspace(0, 1, NV+2)[1:-1]
 args = (vps, A, J)
 vs = v_of_vp_lambdified(*args)
 
-print('Radii:', A / np.sinh(vs))
+#print('Radii:', A / np.sinh(vs))
 
 du = us[1]-us[0]
 dvp = vps[1]-vps[0]

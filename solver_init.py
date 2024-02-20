@@ -13,7 +13,7 @@ tol = 1e-12
 
 K = 10* 1/np.sqrt(2)
 
-As = K * np.linspace(0.5, 1, 100)
+As = 2*K * np.linspace(0.5, 1, 100)
 
 A_idx = int(sys.argv[1])
 #K = float(sys.argv[2])
