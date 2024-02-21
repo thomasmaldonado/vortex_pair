@@ -13,10 +13,11 @@
 ##SBATCH --mail-user=maldonado@princeton.edu
 #SBATCH --array=0-99 
 
-echo $SLURM_ARRAY_JOB_ID
+echo $SLURM_ARRAY_TASK_ID
+
 module purge
 module load anaconda3/2023.9
 conda activate
-python -u solver_rec.py $SLURM_ARRAY_JOB_ID 0.7 1 20 20 $SLURM_ARRAY_JOB_ID
-python plotter.py $SLURM_ARRAY_JOB_ID
-python energies.py $SLURM_ARRAY_JOB_ID
+python -u solver_rec.py $SLURM_ARRAY_TASK_ID 0.7 1 20 20 $SLURM_ARRAY_TASK_ID
+python plotter.py $SLURM_ARRAY_TASK_ID
+python energies.py $SLURM_ARRAY_TASK_ID
