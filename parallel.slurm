@@ -13,6 +13,7 @@
 ##SBATCH --mail-user=maldonado@princeton.edu
 #SBATCH --array = 0-99 
 
+echo $SLURM_ARRAY_JOB_ID
 module purge
 module load anaconda3/2023.9
 conda activate
