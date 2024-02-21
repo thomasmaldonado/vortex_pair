@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from files import load
 
 numpoints = 100
 electric = []
@@ -11,21 +12,16 @@ separations = []
 for i in range(numpoints):
     file = 'data/' +  str(i) + '_energies.npy'
     try:
-        A, K, N, E, B, H, T = np.load(file)
+        A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density = load(file)
         indices.append(i)
         separations.append(2*A)
-        electric.append(E)
-        magnetic.append(B)
-        hydraulic.append(H)
-        total.append(T)
+        electric.append(electric_energy)
+        magnetic.append(magnetic_energy)
+        hydraulic.append(hydraulic_energy)
+        total.append(total_energy)
     except:
         continue
 
-#print(electric)
-#fig, ax = plt.subplots()
-#ax.scatter(indices, electric)
-#ax.set_yscale('log')
-#plt.show()
 plt.scatter(separations, electric)
 plt.ylabel('Electric energy')
 plt.xlabel('Separation')
