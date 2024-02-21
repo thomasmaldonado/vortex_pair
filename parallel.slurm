@@ -11,7 +11,7 @@
 ##SBATCH --mail-type=end          # send email when job ends
 ##SBATCH --mail-type=fail         # send email if job fails
 ##SBATCH --mail-user=maldonado@princeton.edu
-#SBATCH --array = 0-99 
+#SBATCH --array=0-99 
 
 echo $SLURM_ARRAY_JOB_ID
 module purge
