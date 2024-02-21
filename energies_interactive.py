@@ -184,34 +184,6 @@ for i in range(NU):
         args = (vp, A, J)
         dv = dv_dvp_lambdified(*args) * dvp
         dA[i,j] = du*dv * h**2
-"""
-dA_no_h = np.zeros((NU,NV))
-Eu_h = np.zeros((NU,NV))
-Ev_h = np.zeros((NU,NV))
-B_h = np.zeros((NU,NV))
-for i in range(NU):
-    u = us[i]
-    for j in range(NV):
-        v = vs[j]
-        vp = vps[j]
-        #h = A / (np.cosh(v)-np.cos(u))
-        args = (vp, A, J)
-        dv = dv_dvp_lambdified(*args) * dvp
-        dA_no_h[i,j] = du*dv
-
-        E_args = [V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j], u, v, A, N]
-        Eu_h[i,j], Ev_h[i,j] = Eu_h_lambdified(*E_args), Ev_h_lambdified(*E_args)
-        B_args = [Fu[i,j], Fu_u[i,j], Fu_v[i,j], Fu_uu[i,j], Fu_uv[i,j], Fu_vv[i,j]]
-        B_args.extend([Fv[i,j], Fv_u[i,j], Fv_v[i,j], Fv_uu[i,j], Fv_uv[i,j], Fv_vv[i,j]])
-        B_args.extend([u, v, A, N])
-        B_h[i,j] = B_h_lambdified(*B_args)
-"""
-#plt.imshow((Eu_h**2 + Ev_h ** 2) * dA_no_h / 2)
-#plt.savefig('data/' + sys.argv[1] + '_electric.png')
-#plt.imshow(dA_no_h*(V_u**2 + V_v**2)/2)
-#plt.show()
-#electric_energy = np.sum((Eu_h**2 + Ev_h**2)* dA_no_h / 2)
-#magnetic_energy = np.sum(B_h**2 * dA_no_h / 2)
 electric_energy = np.sum(electric_energy_density * dA)
 magnetic_energy = np.sum(magnetic_energy_density * dA)
 hydraulic_energy = np.sum((hydraulic_energy_density - bulk_energy_density)*dA)
@@ -256,8 +228,12 @@ for f in [electric_energy_density, magnetic_energy_density, hydraulic_energy_den
             zs.append(f[i,j])
     NX = 1000
     NY = 1000
-    X = np.linspace(min(xs), max(xs), NX)
-    Y = np.linspace(min(ys), max(ys), NY)
+    min_x = 0
+    max_x = 10*K
+    min_y = -max_x/2
+    max_y = max_x/2
+    X = np.linspace(min_x, max_x, NX)
+    Y = np.linspace(min_y, max_y, NY)
     X, Y = np.meshgrid(X, Y)
     interp = LinearNDInterpolator(list(zip(xs, ys)), zs)
     Z = interp(X,Y)
