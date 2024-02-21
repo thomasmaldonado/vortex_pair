@@ -1,0 +1,6 @@
+79
+1.0 4 The iteration is not making good progress, as measured by the 
+  improvement from the last five Jacobian evaluations. 674.7937734127045
+0.5 1 The solution converged. 55.61306548118591
+1.0 1 The solution converged. 166.60357785224915
+1.797979797979798 2.0 1 30 30 1
