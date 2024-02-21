@@ -7,15 +7,9 @@ from coords import v_of_vp_lambdified, dv_dvp_lambdified, d2v_dvp2_lambdified, d
 from numba import njit
 from matplotlib import pyplot as plt
 file = 'data/' + sys.argv[1] + '.npy'
-A, K, N, NU, NV, ier, solution = load(file)
+A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density = load(file)
 J = -4/K**4
 NUNV = NU*NV
-
-V = np.reshape(solution[0:NUNV], (NU,NV))
-Fu = np.reshape(solution[NUNV:2*NUNV], (NU,NV))
-Fv = np.reshape(solution[2*NUNV:3*NUNV], (NU,NV))
-C = np.reshape(solution[3*NUNV:],(NU,NV))
-
 
 us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
 vps = np.linspace(0, 1, NV+2)[1:-1]

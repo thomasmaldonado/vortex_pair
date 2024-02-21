@@ -22,7 +22,6 @@ def save(file, A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic
 
 def load(file):
     arr = np.load(file)
-    print(len(arr))
     A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy = arr[0:10]
     N, NU, NV, ier = int(N), int(NU), int(NV), int(ier)
     V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density = np.split(arr[10:], 7)

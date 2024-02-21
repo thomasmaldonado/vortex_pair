@@ -10,7 +10,7 @@ total = []
 indices = []
 separations = []
 for i in range(numpoints):
-    file = 'data/' +  str(i) + '_energies.npy'
+    file = 'data/' +  str(i) + '.npy'
     try:
         A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density = load(file)
         indices.append(i)

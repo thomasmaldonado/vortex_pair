@@ -15,6 +15,7 @@ A_idx = int(sys.argv[1])
 K = float(sys.argv[2])
 
 As = K * np.linspace(0.5, 1, 100)
+As = np.linspace(K/2, 4*K, 100)
 
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
