@@ -18,6 +18,6 @@ echo $SLURM_ARRAY_TASK_ID
 module purge
 module load anaconda3/2023.9
 conda activate
-python solver_rec.py $SLURM_ARRAY_TASK_ID 2 1 30 30 $SLURM_ARRAY_TASK_ID
+python solver_rec.py $SLURM_ARRAY_TASK_ID 2 1 20 20 $SLURM_ARRAY_TASK_ID
 python plotter.py $SLURM_ARRAY_TASK_ID
 python energies.py $SLURM_ARRAY_TASK_ID
