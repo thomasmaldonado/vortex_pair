@@ -118,9 +118,9 @@ def dV_dv(V, n):
     return d_dv(V, n, boundary_left, boundary_right)
 
 @njit(parallel = True)
-def dF_dv(Fu, Fv, N, n = 1):
+def dF_dv(Fu, Fv, n = 1):
     boundary_left_u = np.ascontiguousarray(Fu[:,0])
-    boundary_left_u[0] = 0 #N / A
+    boundary_left_u[0] = 0
     boundary_left_v = np.zeros(NU)
     xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
     avg_x = np.mean(xs)
@@ -156,10 +156,10 @@ def f(V_Fu_Fv_C, N):
     V_uv = dV_du(V_v, n = 1)
     V_vv = dV_dv(V, n = 2)
     Fu_u, Fv_u = dF_du(Fu, Fv, n = 1)
-    Fu_v, Fv_v = dF_dv(Fu, Fv, N, n = 1)
+    Fu_v, Fv_v = dF_dv(Fu, Fv, n = 1)
     Fu_uu, Fv_uu = dF_du(Fu, Fv, n = 2)
     Fu_uv, Fv_uv = dF_du(Fu_v, Fv_v, n = 1)
-    Fu_vv, Fv_vv = dF_dv(Fu, Fv, N, n = 2)
+    Fu_vv, Fv_vv = dF_dv(Fu, Fv, n = 2)
     C_u = dC_du(C, n = 1)
     C_v = dC_dv(C, n = 1)
     C_uu = dC_du(C, n = 2)

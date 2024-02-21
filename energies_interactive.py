@@ -1,26 +1,21 @@
-from analytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, Eu_lambdified, Ev_lambdified, B_lambdified
-from coords import v_of_vp_lambdified, dvp_dv_lambdified, d2vp_dv2_lambdified, dv_dvp_lambdified, BP2cart, cart2BP, cart2BPinfinity
-from derivatives import d
-import numpy as np
-from numba import njit, prange
-from matplotlib import pyplot as plt
-from scipy.optimize import fsolve
-from files import load, save
-from time import time
+from files import load
 import sys
-
-
-A_idx = int(sys.argv[1])
-K = float(sys.argv[2])
-As = 4*K * np.linspace(0.5, 1, 100)
-
-N = float(sys.argv[3])
-NU = int(sys.argv[4])
-NV = int(sys.argv[5])
-file = 'data/' + sys.argv[6] + '.npy'
-
-A = As[A_idx]
+import numpy as np
+from derivatives import d
+from analytics import Eu_lambdified, Ev_lambdified, B_lambdified, Eu_h_lambdified, Ev_h_lambdified, B_h_lambdified
+from coords import v_of_vp_lambdified, dv_dvp_lambdified, d2v_dvp2_lambdified, dvp_dv_lambdified, d2vp_dv2_lambdified
+from numba import njit
+from matplotlib import pyplot as plt
+file = 'data/' + sys.argv[1] + '.npy'
+A, K, N, NU, NV, ier, solution = load(file)
 J = -4/K**4
+NUNV = NU*NV
+
+V = np.reshape(solution[0:NUNV], (NU,NV))
+Fu = np.reshape(solution[NUNV:2*NUNV], (NU,NV))
+Fv = np.reshape(solution[2*NUNV:3*NUNV], (NU,NV))
+C = np.reshape(solution[3*NUNV:],(NU,NV))
+
 
 us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
 vps = np.linspace(0, 1, NV+2)[1:-1]
@@ -113,10 +108,10 @@ def dV_dv(V, n):
     boundary_right = np.full(NU, np.mean(V[:,-1]))
     return d_dv(V, n, boundary_left, boundary_right)
 
-@njit
-def dF_dv(Fu, Fv, n = 1):
+@njit(parallel = True)
+def dF_dv(Fu, Fv, N, n = 1):
     boundary_left_u = np.ascontiguousarray(Fu[:,0])
-    boundary_left_u[0] = 0
+    boundary_left_u[0] = 0 #N / A
     boundary_left_v = np.zeros(NU)
     xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
     avg_x = np.mean(xs)
@@ -132,76 +127,6 @@ def dC_dv(C, n = 1):
     boundary_left[0] = np.sqrt(-J)
     boundary_right = np.zeros(np.shape(C)[0])
     return d_dv(C, n, boundary_left, boundary_right)
-
-@njit
-def unpack(V_Fu_Fv_C):
-    V = np.reshape(V_Fu_Fv_C[0:NUNV], (NU,NV))
-    Fu = np.reshape(V_Fu_Fv_C[NUNV:2*NUNV], (NU,NV))
-    Fv = np.reshape(V_Fu_Fv_C[2*NUNV:3*NUNV], (NU,NV))
-    C = np.reshape(V_Fu_Fv_C[3*NUNV:],(NU,NV))
-    return V, Fu, Fv, C
-
-
-@njit(parallel = True)
-def f(V_Fu_Fv_C):
-    V, Fu, Fv, C = unpack(V_Fu_Fv_C)
-    eq0_V, eq0_Fu, eq0_Fv, eq0_C = np.zeros((NU, NV)), np.zeros((NU, NV)), np.zeros((NU, NV)), np.zeros((NU, NV))
-    V_u = dV_du(V, n = 1)
-    V_v = dV_dv(V, n = 1)
-    V_uu = dV_du(V, n = 2)
-    V_uv = dV_du(V_v, n = 1)
-    V_vv = dV_dv(V, n = 2)
-    Fu_u, Fv_u = dF_du(Fu, Fv, n = 1)
-    Fu_v, Fv_v = dF_dv(Fu, Fv, n = 1)
-    Fu_uu, Fv_uu = dF_du(Fu, Fv, n = 2)
-    Fu_uv, Fv_uv = dF_du(Fu_v, Fv_v, n = 1)
-    Fu_vv, Fv_vv = dF_dv(Fu, Fv, n = 2)
-    C_u = dC_du(C, n = 1)
-    C_v = dC_dv(C, n = 1)
-    C_uu = dC_du(C, n = 2)
-    C_uv = dC_du(C_v, n = 1)
-    C_vv = dC_dv(C, n = 2)
-    args = np.zeros(29)
-    for i in prange(NU):
-        u = us[i]
-        for j in prange(NV):
-            v = vs[j]
-            args = (V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j], Fu[i,j], Fu_u[i,j], Fu_v[i,j], Fu_uu[i,j], Fu_uv[i,j], Fu_vv[i,j], Fv[i,j], Fv_u[i,j], Fv_v[i,j], Fv_uu[i,j], Fv_uv[i,j], Fv_vv[i,j], C[i,j], C_u[i,j], C_v[i,j], C_uu[i,j], C_uv[i,j], C_vv[i,j], u, v, A, J, N)
-            eq0_V[i,j] = eq0_V_lambdified(*args)
-            eq0_Fu[i,j] = eq0_Fu_lambdified(*args)
-            eq0_Fv[i,j] = eq0_Fv_lambdified(*args)
-            eq0_C[i,j] = eq0_C_lambdified(*args)
-    result = np.append(eq0_V.flatten(), eq0_Fu.flatten())
-    result = np.append(result, eq0_Fv.flatten())
-    result = np.append(result, eq0_C.flatten())
-    return result
-
-@njit(parallel = True)
-def f_reduced(V_C):
-    V, C = V_C[0:NUNV], V_C[NUNV:], 
-    Fu, Fv = np.zeros(NUNV), np.zeros(NUNV)
-    V_Fu_Fv_C = np.append(V, Fu)
-    V_Fu_Fv_C = np.append(V_Fu_Fv_C, Fv)
-    V_Fu_Fv_C = np.append(V_Fu_Fv_C, C)
-    result =  f(V_Fu_Fv_C)
-    eq0_V = result[0:NUNV]
-    eq0_C = result[-NUNV:]
-    return np.append(eq0_V, eq0_C)
-
-x0_reduced = np.zeros(2*NUNV, dtype = float)
-x0_reduced[0:NUNV] = -1
-x0_reduced[-NUNV:] = np.sqrt(-J)
-solution_reduced, infodict, ier, mesg = fsolve(f_reduced, x0_reduced, full_output = True)
-x0 = np.zeros(4*NUNV)
-x0[0:NUNV] = solution_reduced[0:NUNV]
-x0[-NUNV:] = solution_reduced[-NUNV:]
-start = time()
-solution, infodict, ier, mesg = fsolve(f, x0, full_output = True)
-end = time()
-print(N, ier, mesg, end - start)
-
-V, Fu, Fv, C = unpack(solution)
-
 
 V_u = dV_du(V, n = 1)
 V_v = dV_dv(V, n = 1)
@@ -221,8 +146,11 @@ C_vv = dC_dv(C, n = 2)
 
 Eu, Ev, B = np.zeros((NU,NV)), np.zeros((NU,NV)), np.zeros((NU,NV))
 
-for i, u in enumerate(us):
-    for j, v in enumerate(vs):
+
+for i in range(len(us)):
+    u = us[i]
+    for j in range(len(vs)):
+        v = vs[j]
         E_args = [V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j], u, v, A, N]
         Eu[i,j], Ev[i,j] = Eu_lambdified(*E_args), Ev_lambdified(*E_args)
         B_args = [Fu[i,j], Fu_u[i,j], Fu_v[i,j], Fu_uu[i,j], Fu_uv[i,j], Fu_vv[i,j]]
@@ -232,7 +160,19 @@ for i, u in enumerate(us):
 
 electric_energy_density = (Eu**2 + Ev**2)/2
 magnetic_energy_density = (B**2)/2
-hydraulic_energy_density = C**2 * V**2 + J
+hydraulic_energy_density = C**2 * V**2
+bulk_energy_density = - J
+
+save_file_E = 'data/' + sys.argv[1] + '_E.png'
+save_file_B = 'data/' + sys.argv[1] + '_B.png'
+save_file_H = 'data/' + sys.argv[1] + '_H.png'
+
+plt.imshow(electric_energy_density, cmap='hot', interpolation='nearest')
+plt.savefig(save_file_E)
+plt.imshow(magnetic_energy_density, cmap='hot', interpolation='nearest')
+plt.savefig(save_file_B)
+plt.imshow(hydraulic_energy_density - bulk_energy_density, cmap='hot', interpolation='nearest')
+plt.savefig(save_file_H)
 
 dA = np.zeros((NU, NV))
 for i in range(NU):
@@ -244,15 +184,84 @@ for i in range(NU):
         args = (vp, A, J)
         dv = dv_dvp_lambdified(*args) * dvp
         dA[i,j] = du*dv * h**2
+"""
+dA_no_h = np.zeros((NU,NV))
+Eu_h = np.zeros((NU,NV))
+Ev_h = np.zeros((NU,NV))
+B_h = np.zeros((NU,NV))
+for i in range(NU):
+    u = us[i]
+    for j in range(NV):
+        v = vs[j]
+        vp = vps[j]
+        #h = A / (np.cosh(v)-np.cos(u))
+        args = (vp, A, J)
+        dv = dv_dvp_lambdified(*args) * dvp
+        dA_no_h[i,j] = du*dv
 
+        E_args = [V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j], u, v, A, N]
+        Eu_h[i,j], Ev_h[i,j] = Eu_h_lambdified(*E_args), Ev_h_lambdified(*E_args)
+        B_args = [Fu[i,j], Fu_u[i,j], Fu_v[i,j], Fu_uu[i,j], Fu_uv[i,j], Fu_vv[i,j]]
+        B_args.extend([Fv[i,j], Fv_u[i,j], Fv_v[i,j], Fv_uu[i,j], Fv_uv[i,j], Fv_vv[i,j]])
+        B_args.extend([u, v, A, N])
+        B_h[i,j] = B_h_lambdified(*B_args)
+"""
+#plt.imshow((Eu_h**2 + Ev_h ** 2) * dA_no_h / 2)
+#plt.savefig('data/' + sys.argv[1] + '_electric.png')
+#plt.imshow(dA_no_h*(V_u**2 + V_v**2)/2)
+#plt.show()
+#electric_energy = np.sum((Eu_h**2 + Ev_h**2)* dA_no_h / 2)
+#magnetic_energy = np.sum(B_h**2 * dA_no_h / 2)
 electric_energy = np.sum(electric_energy_density * dA)
 magnetic_energy = np.sum(magnetic_energy_density * dA)
-hydraulic_energy = np.sum((hydraulic_energy_density)*dA)
+hydraulic_energy = np.sum((hydraulic_energy_density - bulk_energy_density)*dA)
 total_energy = electric_energy + magnetic_energy + hydraulic_energy
-
-energy_densities = np.concatenate((electric_energy_density.flatten(), magnetic_energy_density.flatten(), hydraulic_energy_density.flatten()))
-
-save(file, A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, solution, energy_densities)
+arr = np.array([A, K, N, electric_energy, magnetic_energy, hydraulic_energy, total_energy])
+np.save('data/' + sys.argv[1] + '_energies.npy', arr)
 
 
-save(file, A, K, N, NU, NV, ier, solution)
+
+
+
+
+
+
+
+
+from matplotlib import pyplot as plt
+from files import load
+import sys
+import numpy as np
+from coords import v_of_vp_lambdified
+from scipy.interpolate import LinearNDInterpolator
+
+file = 'data/' + sys.argv[1] + '.npy'
+save_file_V = 'data/' + sys.argv[1]+ '_V' + '.png'
+save_file_Fu = 'data/' + sys.argv[1]+ '_Fu' + '.png'
+save_file_Fv = 'data/' + sys.argv[1]+ '_Fv' + '.png'
+save_file_C = 'data/' + sys.argv[1]+ '_C' + '.png'
+
+plt.close()
+for f in [electric_energy_density, magnetic_energy_density, hydraulic_energy_density]:
+    xs = []
+    ys = []
+    zs = []
+    for i, u in enumerate(us):
+        for j, v in enumerate(vs):
+            h = A / (np.cosh(v)-np.cos(u))
+            x = h*np.sinh(v)
+            y = h*np.sin(u)
+            xs.append(x)
+            ys.append(y)
+            zs.append(f[i,j])
+    NX = 1000
+    NY = 1000
+    X = np.linspace(min(xs), max(xs), NX)
+    Y = np.linspace(min(ys), max(ys), NY)
+    X, Y = np.meshgrid(X, Y)
+    interp = LinearNDInterpolator(list(zip(xs, ys)), zs)
+    Z = interp(X,Y)
+    plt.pcolormesh(X,Y,Z, shading = 'auto')
+    plt.colorbar()
+    plt.axis('equal')
+    plt.show()

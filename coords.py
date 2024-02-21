@@ -1,11 +1,12 @@
 from sympy import symbols, Function, diff, ln, solve
 from sympy.utilities import lambdify
 from numba import njit
-
+import numpy as np
 # define symbols and functions
 v, vp, a, j = symbols('v v_p a j')
 
 v_of_vp= ln((1+vp)/(1-vp))
+
 """
 k = (-4/j)**(1/4)
 xi = k/2
@@ -38,3 +39,29 @@ d2v_dvp2_lambdified = njit(d2v_dvp2_lambdified)
 vp_of_v_lambdified = njit(vp_of_v_lambdified)
 dvp_dv_lambdified = njit(dvp_dv_lambdified)
 d2vp_dv2_lambdified = njit(d2vp_dv2_lambdified)
+
+@njit
+def BP2cart(Fu, Fv, u, v):
+    M_00 = -np.sin(u)*np.sinh(v) / (np.cosh(v)-np.cos(u))
+    M_01 = (1 - np.cos(u)*np.cosh(v)) / (np.cosh(v)-np.cos(u))
+    M_10 = - M_01
+    M_11 = M_00
+    return Fu * M_00 + Fv * M_01, Fu * M_10 + Fv * M_11
+
+@njit
+def cart2BP(Fx, Fy, u, v):
+    M_00 = -np.sin(u)*np.sinh(v) / (np.cosh(v)-np.cos(u))
+    M_01 = (1 - np.cos(u)*np.cosh(v)) / (np.cosh(v)-np.cos(u))
+    M_10 = - M_01
+    M_11 = M_00
+    MT_00, MT_01, MT_10, MT_11 = M_00, M_10, M_01, M_11
+    return Fx * MT_00 + Fy * MT_01, Fx * M_10 + Fy * M_11
+
+@njit
+def cart2BPinfinity(Fx, Fy, u):
+    M_00 = -np.sin(u)
+    M_01 = -np.cos(u)
+    M_10 = - M_01
+    M_11 = M_00
+    MT_00, MT_01, MT_10, MT_11 = M_00, M_10, M_01, M_11
+    return Fx * MT_00 + Fy * MT_01, Fx * M_10 + Fy * M_11

@@ -12,3 +12,7 @@ def save(file, A, K, N, NU, NX, ier, solution):
     arr[6:] = solution
     #np.save(file, arr, allow_pickle = False)
     np.save(file, arr)
+"""
+def save(file, A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, solution, energy_densities):
+    arr = np.zeros()
+"""
