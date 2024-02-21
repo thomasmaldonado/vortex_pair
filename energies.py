@@ -111,7 +111,7 @@ def dV_dv(V, n):
 @njit(parallel = True)
 def dF_dv(Fu, Fv, N, n = 1):
     boundary_left_u = np.ascontiguousarray(Fu[:,0])
-    boundary_left_u[0] = N / A
+    boundary_left_u[0] = 0 #N / A
     boundary_left_v = np.zeros(NU)
     xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
     avg_x = np.mean(xs)

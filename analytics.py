@@ -12,7 +12,8 @@ Fu = Function('Fu')
 Fv = Function('Fv')
 C = Function('C')
 
-Au = Fu(u,v) - n * cosh(v) / a
+#Au = Fu(u,v) - n * cosh(v) / a
+Au = Fu(u,v) - n * (cosh(v)-cos(u)) / a
 #Au = Fu(u,v) - n * sinh(v) / a
 Av = Fv(u,v)
 
@@ -78,7 +79,8 @@ eq0_C = symbolify(eq0_C, Fu(u,v), Fu_syms)
 eq0_C = symbolify(eq0_C, Fv(u,v), Fv_syms)
 eq0_C = symbolify(eq0_C, C(u,v), C_syms)
 
-B = curl(Au*u_hat+Av*v_hat).dot(z_hat).simplify()
+B = curl(Au*u_hat+Av*v_hat).dot(z_hat).expand().simplify()
+
 B = symbolify(B, Fu(u,v), Fu_syms)
 B = symbolify(B, Fv(u,v), Fv_syms)
 

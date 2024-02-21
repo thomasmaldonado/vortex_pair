@@ -9,14 +9,13 @@ from files import load, save
 from time import time
 import sys
 
-tol = 1e-12
-
-K = 10* 1/np.sqrt(2)
-
-As = 2*K * np.linspace(0.5, 1, 100)
+tol = 1.49012e-08
 
 A_idx = int(sys.argv[1])
-#K = float(sys.argv[2])
+K = float(sys.argv[2])
+
+As = 4*K * np.linspace(0.5, 1, 100)
+
 NF = float(sys.argv[3])
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])
@@ -120,7 +119,7 @@ def dV_dv(V, n):
 @njit(parallel = True)
 def dF_dv(Fu, Fv, N, n = 1):
     boundary_left_u = np.ascontiguousarray(Fu[:,0])
-    boundary_left_u[0] = N / A
+    boundary_left_u[0] = 0 #N / A
     boundary_left_v = np.zeros(NU)
     xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
     avg_x = np.mean(xs)
