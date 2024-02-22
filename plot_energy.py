@@ -22,6 +22,8 @@ for i in range(numpoints):
     except:
         continue
 
+electromagnetic = np.array(electric) + np.array(magnetic)
+
 plt.scatter(separations, electric)
 plt.ylabel('Electric energy')
 plt.xlabel('Separation')
@@ -45,3 +47,9 @@ plt.ylabel('Total energy')
 plt.xlabel('Separation')
 plt.title(r'$\kappa =$' + f'{K}')
 plt.savefig('total_energy')
+plt.close()
+plt.scatter(separations, electromagnetic)
+plt.ylabel('Electromagnetic energy')
+plt.xlabel('Separation')
+plt.title(r'$\kappa =$' + f'{K}')
+plt.savefig('electromagnetic_energy')
