@@ -12,7 +12,7 @@ import sys
 
 A_idx = int(sys.argv[1])
 K = float(sys.argv[2])
-As = np.linspace(K, 10*K, 100)
+As = np.linspace(0, 8*K, 101)[1:]
 
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
