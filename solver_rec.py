@@ -14,7 +14,7 @@ tol = 1.49012e-08
 A_idx = int(sys.argv[1])
 K = float(sys.argv[2])
 
-As = np.linspace(0, 8*K, 101)[1:]
+As = np.linspace(0, 6*K, 101)[1:]
 
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
