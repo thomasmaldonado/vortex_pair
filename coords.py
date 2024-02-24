@@ -6,6 +6,7 @@ import numpy as np
 v, vp, a, j = symbols('v v_p a j')
 
 v_of_vp= ln((1+vp)/(1-vp))
+#v_of_vp=  ln((1+vp)/(1-vp)) / 10
 
 """
 k = (-4/j)**(1/4)
