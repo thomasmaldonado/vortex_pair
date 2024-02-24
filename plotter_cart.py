@@ -43,8 +43,7 @@ for idx, f in enumerate(energy_densities):
             xs.append(x)
             ys.append(y)
             zs.append(f[i,j])
-            
-
+        
     NX = 1000
     NY = 1000
     min_x, max_x = -10*K, 10*K
@@ -67,3 +66,7 @@ for idx, f in enumerate(energy_densities):
     plt.title(titles[idx])
     plt.savefig(save_files[idx])
     plt.close()
+
+plt.scatter(np.arange(len(xs)), np.sort(xs))
+plt.yscale('log')
+plt.show()

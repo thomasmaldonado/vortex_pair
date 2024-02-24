@@ -9,6 +9,7 @@ hydraulic = []
 total = []
 indices = []
 separations = []
+hydro_inf = []
 for i in range(numpoints):
     file = 'data/' +  str(i) + '.npy'
     try:
@@ -19,6 +20,7 @@ for i in range(numpoints):
         magnetic.append(magnetic_energy)
         hydraulic.append(hydraulic_energy)
         total.append(total_energy)
+        hydro_inf.append(hydraulic_energy_density[0,0])
     except:
         continue
 
@@ -56,3 +58,36 @@ plt.xlabel('Separation')
 plt.legend()
 plt.title(r'$\kappa =$' + f'{K}')
 plt.savefig('electromagnetic_energy')
+plt.close()
+
+hydro_d = []
+electro_d = []
+total_d = []
+for i in range(1,len(hydraulic)):
+    hydro_d.append((hydraulic[i] - hydraulic[i-1])/(separations[i] - separations[i-1]))
+    electro_d.append((electromagnetic[i] - electromagnetic[i-1])/(separations[i] - separations[i-1]))
+    total_d.append(hydro_d[-1] + electro_d[-1])
+plt.scatter(separations[1:], electro_d, label = 'Electromagnetic')
+plt.scatter(separations[1:], hydro_d, label = 'Hydraulic')
+plt.scatter(separations[1:], total_d, label = 'Total')
+plt.axhline(0)
+plt.ylim(-1e-9,1e-9)
+plt.ylabel('d Energy / d Separation')
+plt.xlabel('Separation')
+plt.legend()
+plt.title(r'$\kappa =$' + f'{K}')
+plt.savefig('derivatives')
+plt.close()
+
+
+
+
+
+plt.scatter(separations, hydro_inf, label = 'Hydro inf')
+plt.yscale('log')
+plt.ylabel('Energy')
+plt.xlabel('Separation')
+plt.legend()
+plt.title(r'$\kappa =$' + f'{K}')
+plt.savefig('hydro_inf')
+plt.close()
