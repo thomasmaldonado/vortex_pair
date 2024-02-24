@@ -1,0 +1,5 @@
+72
+0 1 The solution converged. 184.24999976158142
+/home/tm7623/vortex_pair/plotter_cart.py:72: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+  plt.show()
+2190.0 500.0 1 50 50 1
