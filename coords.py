@@ -5,8 +5,9 @@ import numpy as np
 # define symbols and functions
 v, vp, a, j = symbols('v v_p a j')
 
+k= (-j/4) ** 4
+
 v_of_vp= ln((1+vp)/(1-vp))
-#v_of_vp=  ln((1+vp)/(1-vp)) / 10
 
 """
 k = (-4/j)**(1/4)
