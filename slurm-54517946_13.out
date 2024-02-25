@@ -1,6 +1,0 @@
-13
-0 1 The solution converged. 162.26130843162537
-1 1 The solution converged. 1154.293600320816
-/home/tm7623/vortex_pair/plotter_cart.py:72: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
-  plt.show()
-42.0 150.0 1 50 50 1
