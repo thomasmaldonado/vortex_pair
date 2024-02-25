@@ -17,6 +17,7 @@ K = float(sys.argv[2])
 As = np.linspace(0, 2*K, 101)[1:]
 
 N = float(sys.argv[3])
+N = 1
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])
 file = 'data/' + sys.argv[6] + '.npy'
@@ -179,7 +180,7 @@ if ier != 1:
     raise Exception('Electrostatic solution not found')
 
 solution = solution0
-"""
+
 def solvefor(N, N0, x0):
     def f_reduced(V_Fu_Fv_C):
         return f(V_Fu_Fv_C, N)
@@ -195,7 +196,7 @@ def solvefor(N, N0, x0):
 
 solution = solvefor(N, 0, solution0)
 ier = 1
-"""
+
 V, Fu, Fv, C = unpack(solution)
 
 V_u = dV_du(V, n = 1)
@@ -222,7 +223,7 @@ for i, u in enumerate(us):
         B_args = [Fu[i,j], Fu_u[i,j], Fu_v[i,j], Fu_uu[i,j], Fu_uv[i,j], Fu_vv[i,j]]
         B_args.extend([Fv[i,j], Fv_u[i,j], Fv_v[i,j], Fv_uu[i,j], Fv_uv[i,j], Fv_vv[i,j]])
         B_args.extend([u, v, A, N])
-        #B[i,j] = B_lambdified(*B_args)
+        B[i,j] = B_lambdified(*B_args)
 
 electric_energy_density = (Eu**2 + Ev**2)/2
 magnetic_energy_density = (B**2)/2
