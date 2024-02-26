@@ -1,6 +1,7 @@
+#!/bin/bash
+
 ### ANIMATION ###
 
-#!/bin/bash
 # convert sequence of pngs of the form data/n_suffix.png into gif
 cd data
 suffix=$1

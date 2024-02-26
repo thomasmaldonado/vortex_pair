@@ -1,6 +1,7 @@
+#!/bin/bash
+
 ### POST-PROCESSING (ENERGY PLOT + GIFS) ###
 
-#!/bin/bash
 python plot_energy.py
 bash animate.sh V
 bash animate.sh Fu

@@ -1,6 +1,7 @@
+#!/bin/bash
+
 ### PARALLIZED SEPARATION SWEEP (FOR REMOTE USE) ###
 
-#!/bin/bash
 #SBATCH --job-name=pair   # create a short name for your job
 #SBATCH --nodes=1            # node count
 #SBATCH --ntasks=1           # how many instances of your command are run, total, across all nodes

@@ -1,6 +1,7 @@
+#!/bin/bash
+
 ### SEQUENTIAL SEPARATION SWEEP (FOR LOCAL USE) ###
 
-#!/bin/bash
 mkdir -p data
 for n in {0..99}; 
 do
