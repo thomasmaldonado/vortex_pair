@@ -66,7 +66,3 @@ for idx, f in enumerate(energy_densities):
     plt.title(titles[idx])
     plt.savefig(save_files[idx])
     plt.close()
-
-plt.scatter(np.arange(len(xs)), np.sort(xs))
-plt.yscale('log')
-plt.show()

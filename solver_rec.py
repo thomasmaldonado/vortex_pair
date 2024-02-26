@@ -17,7 +17,6 @@ K = float(sys.argv[2])
 As = np.linspace(0, 2*K, 101)[1:]
 
 N = float(sys.argv[3])
-N = 1
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])
 file = 'data/' + sys.argv[6] + '.npy'
