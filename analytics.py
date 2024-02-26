@@ -32,10 +32,12 @@ def symbolify(expr, fun, syms):
     expr = expr.subs(fun, syms[-6])
     return expr
 
+# define bipolar coordinate system
 BP = CoordSys3D('BP')
 u_hat, v_hat, z_hat = BP.i, BP.j, BP.k
 h = a/(cosh(v)-cos(u))
 
+# define vector calculus derivatives
 def gradient(f):
     return (diff(f, u)*BP.i + diff(f, v)*BP.j)/h
 
@@ -56,12 +58,14 @@ def curl(F):
 def laplacian(f):
     return div(gradient(f))
 
+# define equations of state in the form eq0 = 0
 eq0_V = (-laplacian(V(u,v)) + C(u,v)**2 * V(u,v) - j).doit()
 eq0_F = (curl(curl(Au*u_hat + Av*v_hat).simplify()) + C(u,v)**2 * (Au*u_hat + Av*v_hat)).doit().expand()
 eq0_Fu = eq0_F.dot(u_hat)
 eq0_Fv = eq0_F.dot(v_hat)
 eq0_C = (-laplacian(C(u,v)) + (1 - V(u,v)**2 + Au**2 + Av**2) * C(u,v)).doit()
 
+# symbolify equations of state
 eq0_V = symbolify(eq0_V, V(u,v), V_syms)
 eq0_V = symbolify(eq0_V, C(u,v), C_syms)
 
@@ -78,8 +82,8 @@ eq0_C = symbolify(eq0_C, Fu(u,v), Fu_syms)
 eq0_C = symbolify(eq0_C, Fv(u,v), Fv_syms)
 eq0_C = symbolify(eq0_C, C(u,v), C_syms)
 
+# define electric and magnetic fields for future calculation of energies
 B = curl(Au*u_hat+Av*v_hat).dot(z_hat).expand().simplify()
-
 B = symbolify(B, Fu(u,v), Fu_syms)
 B = symbolify(B, Fv(u,v), Fv_syms)
 
@@ -87,6 +91,7 @@ E = -gradient(V(u,v)).doit().simplify()
 Eu = symbolify(E.dot(u_hat), V(u,v), V_syms)
 Ev = symbolify(E.dot(v_hat), V(u,v), V_syms)
 
+# lambdify equations of state
 args = list(V_syms)
 args.extend(Fu_syms)
 args.extend(Fv_syms)
@@ -98,6 +103,7 @@ eq0_Fu_lambdified = lambdify(args, eq0_Fu)
 eq0_Fv_lambdified = lambdify(args, eq0_Fv)
 eq0_C_lambdified = lambdify(args, eq0_C)
 
+# lambdify electric and magnetic fields
 E_args = list(V_syms)
 E_args.extend([u,v,a,n])
 
@@ -110,6 +116,7 @@ B_args.extend([u,v,a,n])
 
 B_lambdified = lambdify(B_args, B)
 
+# njit lambdified functions for performance boost
 eq0_V_lambdified = njit(eq0_V_lambdified)
 eq0_Fu_lambdified = njit(eq0_Fu_lambdified)
 eq0_Fv_lambdified = njit(eq0_Fv_lambdified)
