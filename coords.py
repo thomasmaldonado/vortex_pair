@@ -1,21 +1,16 @@
+### COORDINATE TRANSFORMATIONS ###
+
 from sympy import symbols, Function, diff, ln, solve
 from sympy.utilities import lambdify
 from numba import njit
 import numpy as np
-# define symbols and functions
+# vp represents primed coordinate on the domain (0, 1)
 v, vp, a, j = symbols('v v_p a j')
 
-k= (-j/4) ** 4
-
+# require v(0) = 0, v(1) = infty
 v_of_vp= ln((1+vp)/(1-vp))
 
-"""
-k = (-4/j)**(1/4)
-xi = k/2
-alpha = 0
-xminus = alpha * vp**2 + (1-alpha) * vp
-v_of_vp= ln((1+xminus)/(1-xminus))
-"""
+# invert mapping and compute all possible derivatives up to second order
 vp_of_v = solve(v_of_vp - v, vp)[0]
 
 dv_dvp = v_of_vp.diff(vp).doit().simplify()
@@ -42,6 +37,7 @@ vp_of_v_lambdified = njit(vp_of_v_lambdified)
 dvp_dv_lambdified = njit(dvp_dv_lambdified)
 d2vp_dv2_lambdified = njit(d2vp_dv2_lambdified)
 
+# convert a vector with bipolar components (Fu, Fv) at coordinates (u,v) to cartesian coordinates (Fx, Fy)
 @njit
 def BP2cart(Fu, Fv, u, v):
     M_00 = -np.sin(u)*np.sinh(v) / (np.cosh(v)-np.cos(u))
@@ -50,6 +46,7 @@ def BP2cart(Fu, Fv, u, v):
     M_11 = M_00
     return Fu * M_00 + Fv * M_01, Fu * M_10 + Fv * M_11
 
+# convert a vector with cartesian components (Fx, Fy) at coordinates (u,v) to bipolar coordinates (Fu, Fv)
 @njit
 def cart2BP(Fx, Fy, u, v):
     M_00 = -np.sin(u)*np.sinh(v) / (np.cosh(v)-np.cos(u))
@@ -59,6 +56,7 @@ def cart2BP(Fx, Fy, u, v):
     MT_00, MT_01, MT_10, MT_11 = M_00, M_10, M_01, M_11
     return Fx * MT_00 + Fy * MT_01, Fx * M_10 + Fy * M_11
 
+# convert a vector with cartesian components (Fx, Fy) at coordinates (u,infty) to bipolar coordinates (Fu, Fv)
 @njit
 def cart2BPinfinity(Fx, Fy, u):
     M_00 = -np.sin(u)

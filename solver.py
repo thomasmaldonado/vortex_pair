@@ -1,4 +1,6 @@
-from analytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, Eu_lambdified, Ev_lambdified, B_lambdified
+### BOUNDARY VALUE PROBLEM SOLVER ###
+
+from analytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, B_lambdified, Eu_lambdified, Ev_lambdified
 from coords import v_of_vp_lambdified, dvp_dv_lambdified, d2vp_dv2_lambdified, dv_dvp_lambdified, BP2cart, cart2BP, cart2BPinfinity
 from derivatives import d
 import numpy as np
@@ -9,19 +11,23 @@ from files import load, save
 from time import time
 import sys
 
-
+# command line arguments
 A_idx = int(sys.argv[1])
 K = float(sys.argv[2])
-As = np.linspace(0, 8*K, 101)[1:]
-
 N = float(sys.argv[3])
 NU = int(sys.argv[4])
 NV = int(sys.argv[5])
 file = 'data/' + sys.argv[6] + '.npy'
 
+# default scipy tolerance
+tol = 1.49012e-08 
+
+# define separation between vortices (=2A) and background charge density (=J)
+As = np.linspace(0, 2*K, 101)[1:]
 A = As[A_idx]
 J = -4/K**4
 
+#construct bipolar coordinates
 us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
 vps = np.linspace(0, 1, NV+2)[1:-1]
 args = (vps, A, J)
@@ -33,13 +39,14 @@ dvp = vps[1]-vps[0]
 dvp_dv = np.zeros((NU, NV))
 d2vp_dv2 = np.zeros((NU, NV))
 
-# define coordinate transformation
+# define coordinate transformation based on conformal mapping defined in coords.py
 NUNV = NU*NV
 for j, v in enumerate(vs):
     args = (v, A, J)
     dvp_dv[:,j] = dvp_dv_lambdified(*args)
     d2vp_dv2[:,j] = d2vp_dv2_lambdified(*args)
 
+# define derivatives (note the chain rule employed in the d_dv function that enables conformal mapping)
 @njit
 def d_du(f, n):
     boundary_left = np.ascontiguousarray(f[-1,:])
@@ -81,32 +88,6 @@ def dC_du(C, n):
     return d_du(C, n)
 
 @njit
-def BP2cart(Fu, Fv, u, v):
-    M_00 = -np.sin(u)*np.sinh(v) / (np.cosh(v)-np.cos(u))
-    M_01 = (1 - np.cos(u)*np.cosh(v)) / (np.cosh(v)-np.cos(u))
-    M_10 = - M_01
-    M_11 = M_00
-    return Fu * M_00 + Fv * M_01, Fu * M_10 + Fv * M_11
-
-@njit
-def cart2BP(Fx, Fy, u, v):
-    M_00 = -np.sin(u)*np.sinh(v) / (np.cosh(v)-np.cos(u))
-    M_01 = (1 - np.cos(u)*np.cosh(v)) / (np.cosh(v)-np.cos(u))
-    M_10 = - M_01
-    M_11 = M_00
-    MT_00, MT_01, MT_10, MT_11 = M_00, M_10, M_01, M_11
-    return Fx * MT_00 + Fy * MT_01, Fx * M_10 + Fy * M_11
-
-@njit
-def cart2BPinfinity(Fx, Fy, u):
-    M_00 = -np.sin(u)
-    M_01 = -np.cos(u)
-    M_10 = - M_01
-    M_11 = M_00
-    MT_00, MT_01, MT_10, MT_11 = M_00, M_10, M_01, M_11
-    return Fx * MT_00 + Fy * MT_01, Fx * M_10 + Fy * M_11
-
-@njit
 def dV_dv(V, n):
     boundary_left = np.ascontiguousarray(V[:,0])
     boundary_left[0] = -1
@@ -133,6 +114,7 @@ def dC_dv(C, n = 1):
     boundary_right = np.zeros(np.shape(C)[0])
     return d_dv(C, n, boundary_left, boundary_right)
 
+# helper function to unpack and reshape the solutions
 @njit
 def unpack(V_Fu_Fv_C):
     V = np.reshape(V_Fu_Fv_C[0:NUNV], (NU,NV))
@@ -141,9 +123,10 @@ def unpack(V_Fu_Fv_C):
     C = np.reshape(V_Fu_Fv_C[3*NUNV:],(NU,NV))
     return V, Fu, Fv, C
 
-
+# define function whose root we seek
 @njit(parallel = True)
-def f(V_Fu_Fv_C):
+def f(V_Fu_Fv_C, N):
+    # unpack input and calculate derivatives
     V, Fu, Fv, C = unpack(V_Fu_Fv_C)
     eq0_V, eq0_Fu, eq0_Fv, eq0_C = np.zeros((NU, NV)), np.zeros((NU, NV)), np.zeros((NU, NV)), np.zeros((NU, NV))
     V_u = dV_du(V, n = 1)
@@ -161,6 +144,8 @@ def f(V_Fu_Fv_C):
     C_uu = dC_du(C, n = 2)
     C_uv = dC_du(C_v, n = 1)
     C_vv = dC_dv(C, n = 2)
+    
+    # evaluate sympy lambdified expressions at each point in space and return result
     args = np.zeros(29)
     for i in prange(NU):
         u = us[i]
@@ -176,51 +161,63 @@ def f(V_Fu_Fv_C):
     result = np.append(result, eq0_C.flatten())
     return result
 
-@njit(parallel = True)
-def f_reduced(V_C):
+# reduced function whose root yields the electrostatic solution
+def f_electrostatic(V_C):
     V, C = V_C[0:NUNV], V_C[NUNV:], 
     Fu, Fv = np.zeros(NUNV), np.zeros(NUNV)
     V_Fu_Fv_C = np.append(V, Fu)
     V_Fu_Fv_C = np.append(V_Fu_Fv_C, Fv)
     V_Fu_Fv_C = np.append(V_Fu_Fv_C, C)
-    result =  f(V_Fu_Fv_C)
+    result = f(V_Fu_Fv_C, 0)
     eq0_V = result[0:NUNV]
     eq0_C = result[-NUNV:]
     return np.append(eq0_V, eq0_C)
 
-x0_reduced = np.zeros(2*NUNV, dtype = float)
-x0_reduced[0:NUNV] = -1
-x0_reduced[-NUNV:] = np.sqrt(-J)
-solution_reduced, infodict, ier, mesg = fsolve(f_reduced, x0_reduced, full_output = True)
-x0 = np.zeros(4*NUNV)
-x0[0:NUNV] = solution_reduced[0:NUNV]
-x0[-NUNV:] = solution_reduced[-NUNV:]
+# use initial guess for the electrostatic problem given by the bulk solution and perform Newton's method
+x0_electrostatic = np.zeros(2*NUNV, dtype = float)
+x0_electrostatic[0:NUNV] = -1
+x0_electrostatic[-NUNV:] = np.sqrt(-J)
 start = time()
-solution, infodict, ier, mesg = fsolve(f, x0, full_output = True)
+solution_electrostatic, infodict, ier, mesg = fsolve(f_electrostatic, x0_electrostatic, full_output = True, xtol = tol)
 end = time()
+print(0, ier, mesg, end - start)
+if ier != 1:
+    raise Exception('Electrostatic solution not found')
+
+
+# reduced function whose root yields the magnetostatic solution
+def f_magnetostatic(V_Fu_Fv_C):
+    return f(V_Fu_Fv_C, N)
+
+# use initial guess for the magnetostatic problem given by the electrostatic solution and perform Newton's method
+x0_magnetostatic = np.zeros(4*NUNV)
+x0_magnetostatic[0:NUNV] = solution_electrostatic[0:NUNV]
+x0_magnetostatic[-NUNV:] = solution_electrostatic[-NUNV:]
+start = time()
+solution, infodict, ier, mesg = fsolve(f_magnetostatic, x0_magnetostatic, full_output = True, xtol = tol)
 print(N, ier, mesg, end - start)
+end = time()
 
+# take derivatives of solution for post-processing
 V, Fu, Fv, C = unpack(solution)
-
-
 V_u = dV_du(V, n = 1)
 V_v = dV_dv(V, n = 1)
 V_uu = dV_du(V, n = 2)
 V_uv = dV_du(V_v, n = 1)
 V_vv = dV_dv(V, n = 2)
 Fu_u, Fv_u = dF_du(Fu, Fv, n = 1)
-Fu_v, Fv_v = dF_dv(Fu, Fv, N, n = 1)
+Fu_v, Fv_v = dF_dv(Fu, Fv, n = 1)
 Fu_uu, Fv_uu = dF_du(Fu, Fv, n = 2)
 Fu_uv, Fv_uv = dF_du(Fu_v, Fv_v, n = 1)
-Fu_vv, Fv_vv = dF_dv(Fu, Fv, N, n = 2)
+Fu_vv, Fv_vv = dF_dv(Fu, Fv, n = 2)
 C_u = dC_du(C, n = 1)
 C_v = dC_dv(C, n = 1)
 C_uu = dC_du(C, n = 2)
 C_uv = dC_du(C_v, n = 1)
 C_vv = dC_dv(C, n = 2)
 
+# calculate electric and magnetic fields
 Eu, Ev, B = np.zeros((NU,NV)), np.zeros((NU,NV)), np.zeros((NU,NV))
-
 for i, u in enumerate(us):
     for j, v in enumerate(vs):
         E_args = [V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j], u, v, A, N]
@@ -230,10 +227,13 @@ for i, u in enumerate(us):
         B_args.extend([u, v, A, N])
         B[i,j] = B_lambdified(*B_args)
 
-electric_energy_density = (Eu**2 + Ev**2)/2
-magnetic_energy_density = (B**2)/2
-hydraulic_energy_density = C**2 * V**2 + J
+# calculate electric, magnetic, and hydraulic energy densities
+# note the bulk energy density (-J) is subtracted from the hydraulic energy density for normalization
+EED = (Eu**2 + Ev**2)/2
+MED = (B**2)/2
+HED = C**2 * V**2 + J
 
+# calculate area elements
 dA = np.zeros((NU, NV))
 for i in range(NU):
     u = us[i]
@@ -245,14 +245,10 @@ for i in range(NU):
         dv = dv_dvp_lambdified(*args) * dvp
         dA[i,j] = du*dv * h**2
 
-electric_energy = np.sum(electric_energy_density * dA)
-magnetic_energy = np.sum(magnetic_energy_density * dA)
-hydraulic_energy = np.sum((hydraulic_energy_density)*dA)
-total_energy = electric_energy + magnetic_energy + hydraulic_energy
+# calculate electric, magnetic, and hydraulic energies
+EE = np.sum(EED * dA)
+ME = np.sum(MED * dA)
+HE = np.sum((HED)*dA)
 
-energy_densities = np.concatenate((electric_energy_density.flatten(), magnetic_energy_density.flatten(), hydraulic_energy_density.flatten()))
-
-save(file, A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, solution, energy_densities)
-
-
-save(file, A, K, N, NU, NV, ier, solution)
+# save solution
+save(file, A, K, N, NU, NV, ier, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED)

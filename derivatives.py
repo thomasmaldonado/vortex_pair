@@ -1,13 +1,12 @@
-########## DERIVATIVE FUNCTIONS ##########
+### DERIVATIVE DEFINITION ###
 
 import numpy as np
 from numba import njit
-# function for accessing elements outside of the computation domain 
-# boundaries[0] and boundaries[-1] specifies the value that the function should take to the left and to the right
-# of the computational domain, respectively
-# central difference scheme 
-# axis = axis along which derivatives are taken
 
+# central difference scheme
+# h = grid spacing, n = order of derivative 
+# boundary_left and boundary_right represent function values one cell to the left and right of the domain
+# axis = 0 for derivative with respect to 0th coordinate, axis = 1 for derivative with respect to 1st coordinate
 @njit(cache = True)
 def d(f, h, n, boundary_left, boundary_right, axis = 0):
     if axis == 1:
@@ -27,8 +26,3 @@ def d(f, h, n, boundary_left, boundary_right, axis = 0):
     if axis == 1:
         f_b = f_b.transpose()
     return f_b
-
-# integration function
-@njit(parallel = True)
-def integrate(f, dx):
-    return np.sum(f)*dx

@@ -13,7 +13,8 @@ hydro_inf = []
 for i in range(numpoints):
     file = 'data/' +  str(i) + '.npy'
     try:
-        A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, total_energy, V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density = load(file)
+        A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density = load(file)
+        total_energy = electric_energy + magnetic_energy + hydraulic_energy
         indices.append(i)
         separations.append(2*A)
         electric.append(electric_energy)
@@ -78,17 +79,4 @@ plt.xlabel('Separation')
 plt.legend()
 plt.title(r'$\kappa =$' + f'{K}')
 plt.savefig('derivatives')
-plt.close()
-
-
-
-
-
-plt.scatter(separations, hydro_inf, label = 'Hydro inf')
-plt.yscale('log')
-plt.ylabel('Energy')
-plt.xlabel('Separation')
-plt.legend()
-plt.title(r'$\kappa =$' + f'{K}')
-plt.savefig('hydro_inf')
 plt.close()

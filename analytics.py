@@ -1,3 +1,5 @@
+### LAMBDIFICATION OF BOUNDARY VALUE PROBLEM ###
+
 from sympy import symbols, Function, cos, sin, diff
 from sympy.utilities import lambdify
 from sympy.vector import CoordSys3D
@@ -12,11 +14,8 @@ Fu = Function('Fu')
 Fv = Function('Fv')
 C = Function('C')
 
-#Au = Fu(u,v) - n * cosh(v) / a
 Au = Fu(u,v) - n * (cosh(v)-cos(u)) / a
-#Au = Fu(u,v) - n * sinh(v) / a
 Av = Fv(u,v)
-
 
 V_syms = symbols('V, V_u, V_v, V_uu, V_uv, V_vv')
 Fu_syms = symbols('Fu, Fu_u, Fu_v, Fu_uu, Fu_uv, Fu_vv')
@@ -94,9 +93,6 @@ args.extend(Fv_syms)
 args.extend(C_syms)
 args.extend([u, v, a, j, n])
 
-#print(args)
-#print(len(args))
-
 eq0_V_lambdified = lambdify(args, eq0_V)
 eq0_Fu_lambdified = lambdify(args, eq0_Fu)
 eq0_Fv_lambdified = lambdify(args, eq0_Fv)
@@ -105,9 +101,6 @@ eq0_C_lambdified = lambdify(args, eq0_C)
 E_args = list(V_syms)
 E_args.extend([u,v,a,n])
 
-#print(E_args)
-#print(len(E_args))
-
 Eu_lambdified = lambdify(E_args, Eu)
 Ev_lambdified = lambdify(E_args, Ev)
 
@@ -115,11 +108,7 @@ B_args = list(Fu_syms)
 B_args.extend(Fv_syms)
 B_args.extend([u,v,a,n])
 
-#print(B_args)
-#print(len(B_args))
-
 B_lambdified = lambdify(B_args, B)
-
 
 eq0_V_lambdified = njit(eq0_V_lambdified)
 eq0_Fu_lambdified = njit(eq0_Fu_lambdified)
@@ -128,11 +117,3 @@ eq0_C_lambdified = njit(eq0_C_lambdified)
 Eu_lambdified = njit(Eu_lambdified)
 Ev_lambdified = njit(Ev_lambdified)
 B_lambdified = njit(B_lambdified)
-
-Eu_h = (Eu*h).doit().simplify()
-Ev_h = (Ev*h).doit().simplify()
-B_h = (B*h).doit().simplify()
-
-Eu_h_lambdified = njit(lambdify(E_args, Eu_h))
-Ev_h_lambdified = njit(lambdify(E_args, Ev_h))
-B_h_lambdified = njit(lambdify(B_args, B_h))
