@@ -4,7 +4,7 @@ import numpy as np
 
 def save(file, A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy, V, Fu, Fv, C, electric_energy_density, magnetic_energy_density, hydraulic_energy_density):
     NUNV = NU*NV
-    arr = np.zeros(10 + 7 * NUNV)
+    arr = np.zeros(9 + 7 * NUNV)
     arr[0:9] = A, K, N, NU, NV, ier, electric_energy, magnetic_energy, hydraulic_energy
     arr[9:] = np.concatenate((V.flatten(), Fu.flatten(), Fv.flatten(), C.flatten(), electric_energy_density.flatten(), magnetic_energy_density.flatten(), hydraulic_energy_density.flatten()))
     np.save(file, arr)
