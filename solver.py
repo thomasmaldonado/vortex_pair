@@ -195,8 +195,8 @@ x0_magnetostatic[0:NUNV] = solution_electrostatic[0:NUNV]
 x0_magnetostatic[-NUNV:] = solution_electrostatic[-NUNV:]
 start = time()
 solution, infodict, ier, mesg = fsolve(f_magnetostatic, x0_magnetostatic, full_output = True, xtol = tol)
-print(N, ier, mesg, end - start)
 end = time()
+print(N, ier, mesg, end - start)
 
 # take derivatives of solution for post-processing
 V, Fu, Fv, C = unpack(solution)

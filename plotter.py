@@ -9,7 +9,7 @@ from scipy.interpolate import LinearNDInterpolator
 
 # load data and construct coordinate system
 file = 'data/' + sys.argv[1] + '.npy'
-A, K, N, NU, NV, ier, _, _, _, V, Fu, Fv, C, EED, MED, HED = load(file)
+A, K, N, NU, NV, ier, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED = load(file)
 J = -4/K**4
 us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
 vps = np.linspace(0, 1, NV+2)[1:-1]
