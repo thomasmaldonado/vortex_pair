@@ -123,12 +123,12 @@ def unpack(V_Fu_Fv_C):
     C = np.reshape(V_Fu_Fv_C[3*NUNV:],(NU,NV))
     return V, Fu, Fv, C
 
+vv, uu = np.meshgrid(vs, us)
 # define function whose root we seek
-@njit(parallel = True)
+@njit
 def f(V_Fu_Fv_C, N):
     # unpack input and calculate derivatives
     V, Fu, Fv, C = unpack(V_Fu_Fv_C)
-    eq0_V, eq0_Fu, eq0_Fv, eq0_C = np.zeros((NU, NV)), np.zeros((NU, NV)), np.zeros((NU, NV)), np.zeros((NU, NV))
     V_u = dV_du(V, n = 1)
     V_v = dV_dv(V, n = 1)
     V_uu = dV_du(V, n = 2)
@@ -146,16 +146,11 @@ def f(V_Fu_Fv_C, N):
     C_vv = dC_dv(C, n = 2)
     
     # evaluate sympy lambdified expressions at each point in space and return result
-    args = np.zeros(29)
-    for i in prange(NU):
-        u = us[i]
-        for j in prange(NV):
-            v = vs[j]
-            args = (V[i,j], V_u[i,j], V_v[i,j], V_uu[i,j], V_uv[i,j], V_vv[i,j], Fu[i,j], Fu_u[i,j], Fu_v[i,j], Fu_uu[i,j], Fu_uv[i,j], Fu_vv[i,j], Fv[i,j], Fv_u[i,j], Fv_v[i,j], Fv_uu[i,j], Fv_uv[i,j], Fv_vv[i,j], C[i,j], C_u[i,j], C_v[i,j], C_uu[i,j], C_uv[i,j], C_vv[i,j], u, v, A, J, N)
-            eq0_V[i,j] = eq0_V_lambdified(*args)
-            eq0_Fu[i,j] = eq0_Fu_lambdified(*args)
-            eq0_Fv[i,j] = eq0_Fv_lambdified(*args)
-            eq0_C[i,j] = eq0_C_lambdified(*args)
+    args = (V, V_u, V_v, V_uu, V_uv, V_vv, Fu, Fu_u, Fu_v, Fu_uu, Fu_uv, Fu_vv, Fv, Fv_u, Fv_v, Fv_uu, Fv_uv, Fv_vv, C, C_u, C_v, C_uu, C_uv, C_vv, uu, vv, A, J, N)
+    eq0_V = eq0_V_lambdified(*args)
+    eq0_Fu = eq0_Fu_lambdified(*args)
+    eq0_Fv = eq0_Fv_lambdified(*args)
+    eq0_C = eq0_C_lambdified(*args)
     result = np.append(eq0_V.flatten(), eq0_Fu.flatten())
     result = np.append(result, eq0_Fv.flatten())
     result = np.append(result, eq0_C.flatten())
