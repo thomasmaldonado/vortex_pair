@@ -162,6 +162,7 @@ def f(V_Fu_Fv_C, N):
     return result
 
 # reduced function whose root yields the electrostatic solution
+@njit
 def f_electrostatic(V_C):
     V, C = V_C[0:NUNV], V_C[NUNV:], 
     Fu, Fv = np.zeros(NUNV), np.zeros(NUNV)
@@ -174,7 +175,7 @@ def f_electrostatic(V_C):
     return np.append(eq0_V, eq0_C)
 
 # use initial guess for the electrostatic problem given by the bulk solution and perform Newton's method
-x0_electrostatic = np.zeros(2*NUNV, dtype = float)
+x0_electrostatic = np.zeros(2*NUNV)
 x0_electrostatic[0:NUNV] = -1
 x0_electrostatic[-NUNV:] = np.sqrt(-J)
 start = time()

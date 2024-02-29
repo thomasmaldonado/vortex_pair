@@ -206,19 +206,21 @@ def f_electrostatic_opt(V_C):
     return f_electrostatic(V_C, NU, NV, du, dvp_dv, dvp, vv, uu, J, A)
 
 # # use initial guess for the electrostatic problem given by the bulk solution and perform Newton's method
-x0_electrostatic = np.zeros(2*NUNV, dtype = float)
+jax.config.update("jax_enable_x64", True)
+
+x0_electrostatic = np.zeros(2*NUNV)
 x0_electrostatic[0:NUNV] = -1
 x0_electrostatic[-NUNV:] = np.sqrt(-J)
-x0_electrostatic = jnp.array(x0_electrostatic)
+x0_electrostatic = jnp.array(x0_electrostatic, dtype = jnp.float64)
 
-def newton(f, x_0, tol=1e-5, max_iter=15):
+def newton(f, x_0, tol=1e-8, max_iter=30):
     """
     A multivariate Newton root-finding routine.
 
     """
     x = x_0
     f_jac = jit(jax.jacobian(f))
-    
+
     @jit
     def q(x):
         " Updates the current guess. "
@@ -228,8 +230,8 @@ def newton(f, x_0, tol=1e-5, max_iter=15):
     n = 0
     while error > tol:
         n += 1
-        # if(n > max_iter):
-            # raise Exception('Max iteration reached without convergence')
+        if(n > max_iter):
+            raise Exception('Max iteration reached without convergence')
         y = q(x)
         error = jla.norm(x - y)
         x = y
@@ -243,7 +245,7 @@ def newton(f, x_0, tol=1e-5, max_iter=15):
 # params, info = electrostatic_solver.run(init_params = x0_electrostatic) 
 
 start = time.time()
-VC = newton(f_electrostatic_opt, x0_electrostatic, tol=1e-4, max_iter=100)
+VC = newton(f_electrostatic_opt, x0_electrostatic)
 # state = electrostatic_solver.run(init_params = x0_electrostatic) 
 # VC = state.params
 
@@ -254,13 +256,29 @@ print("Elapsed time for electrostatic solution: ", end - start)
 NUNV = NU*NV
 V = jnp.reshape(VC[0:NUNV], (NU,NV))
 C = jnp.reshape(VC[NUNV:], (NU,NV))
+
+
+Fu = jnp.zeros(NUNV, dtype = jnp.float32)
+Fv = jnp.zeros(NUNV, dtype = jnp.float32)
+x0_magnetostatic = jnp.concatenate((VC[0:NUNV], Fu, Fv, VC[-NUNV:]))
+print(x0_magnetostatic.dtype)
+start = time.time()
+solution = newton(f_opt, x0_magnetostatic)
+end = time.time()
+print("Elapsed time for magnetostatic solution: ", end - start)
+V, Fu, Fv, C = unpack(solution)
 plt.imshow(V)
 plt.savefig('testV')
+plt.clf() 
+plt.imshow(Fu)
+plt.savefig('testFu')
+plt.clf() 
+plt.imshow(Fv)
+plt.savefig('testFv')
 plt.clf() 
 plt.imshow(C)
 plt.savefig('testC')
 plt.clf()
-
 
 exit()
 
