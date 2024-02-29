@@ -12,6 +12,7 @@ from jax.numpy import linalg as jla
 from matplotlib import pyplot as plt
 import time 
 from functools import partial
+from files import save
 #from jaxopt import ScipyRootFinding, Broyden
 jax.config.update('jax_platform_name', 'cpu')
 # from matplotlib import pyplot as plt
@@ -266,7 +267,53 @@ start = time.time()
 solution = newton(f_opt, x0_magnetostatic)
 end = time.time()
 print("Elapsed time for magnetostatic solution: ", end - start)
+
 V, Fu, Fv, C = unpack(solution)
+V_u = d_du1(V, du)
+V_v = dV_dv1(V, dvp_dv, dvp)
+V_uu = d_du2(V, du)
+V_uv = d_du1(V_v, du)
+V_vv = dV_dv2(V, dvp_dv, d2vp_dv2, dvp)
+Fu_u, Fv_u = d_du1(Fu, du), d_du1(Fv, du)
+Fu_v, Fv_v = dF_dv1(Fu, Fv, us, vs[-1], dvp_dv, dvp)
+Fu_uu, Fv_uu = d_du2(Fu, du), d_du2(Fv, du)
+Fu_uv, Fv_uv = d_du1(Fu_v, du), d_du1(Fv_v, du)
+Fu_vv, Fv_vv = dF_dv2(Fu, Fv, us, vs[-1], dvp_dv, d2vp_dv2, dvp)
+C_u = d_du1(C, du)
+C_v = dC_dv1(C, J, dvp_dv, dvp)
+C_uu = d_du2(C, du)
+C_uv = d_du1(C_v, du)
+C_vv = dC_dv2(C, J, dvp_dv, d2vp_dv2, dvp)
+
+Eu = Eu_lambdified(uu, vv, A, V_u)
+Ev = Ev_lambdified(V_v, vv, A, uu)
+B = B_lambdified(vv, Fv_u, Fu_v, Fu, Fv, A, uu)
+
+EED = (Eu**2 + Ev**2)/2
+MED = (B**2)/2
+HED = C**2 * V**2 + J
+
+dA = np.zeros((NU, NV))
+for i in range(NU):
+    u = us[i]
+    for j in range(NV):
+        v = vs[j]
+        vp = vps[j]
+        h = A / (np.cosh(v)-np.cos(u))
+        args = (vp, A, J)
+        dv = dv_dvp_lambdified(*args) * dvp
+        dA[i,j] = du*dv * h**2
+dA = jnp.array(dA)
+EE = np.sum(EED * dA)
+ME = np.sum(MED * dA)
+HE = np.sum(HED*dA)
+
+# save solution
+save(file, A, K, N, NU, NV, 1, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED)
+
+
+
+
 plt.imshow(V)
 plt.savefig('testV')
 plt.clf() 
@@ -279,8 +326,17 @@ plt.clf()
 plt.imshow(C)
 plt.savefig('testC')
 plt.clf()
-
+plt.imshow(Eu)
+plt.savefig('testEu')
+plt.clf()
+plt.imshow(Ev)
+plt.savefig('testEv')
+plt.clf()
+plt.imshow(B)
+plt.savefig('testB')
+plt.clf()
 exit()
+
 
 if __name__ == '__main__':
     import solver 
