@@ -35,7 +35,7 @@ file = 'data/' + sys.argv[6] + '.npy'
 tol = 1.49012e-08 
 
 # define separation between vortices (=2A) and background charge density (=J)
-As = np.linspace(0, 2*K, 101)[1:]
+As = np.linspace(K/2, 2*K, 51)[1:]
 A = As[A_idx]
 J = -4/K**4
 
