@@ -1,0 +1,11 @@
+iteration 1, error = 0.29071843806163067
+iteration 2, error = 0.00757495792563206
+iteration 3, error = 1.0721172995300467e-05
+Elapsed time for electrostatic solution:  86.104656457901
+float64
+iteration 1, error = 8.157061449048893
+iteration 2, error = 1.6977869784294584
+iteration 3, error = 0.09492557954867605
+iteration 4, error = 0.00038949009102482465
+iteration 5, error = 2.4565610067382806e-08
+Elapsed time for magnetostatic solution:  1110.811452627182

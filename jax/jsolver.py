@@ -12,7 +12,7 @@ from jax.numpy import linalg as jla
 from matplotlib import pyplot as plt
 import time 
 from functools import partial
-from jaxopt import ScipyRootFinding, Broyden
+#from jaxopt import ScipyRootFinding, Broyden
 jax.config.update('jax_platform_name', 'cpu')
 # from matplotlib import pyplot as plt
 # from scipy.optimize import fsolve
@@ -213,7 +213,7 @@ x0_electrostatic[0:NUNV] = -1
 x0_electrostatic[-NUNV:] = np.sqrt(-J)
 x0_electrostatic = jnp.array(x0_electrostatic, dtype = jnp.float64)
 
-def newton(f, x_0, tol=1e-8, max_iter=30):
+def newton(f, x_0, tol=1e-4, max_iter=30):
     """
     A multivariate Newton root-finding routine.
 
