@@ -26,6 +26,7 @@ def plot(func, label):
     plt.imshow(func, cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.savefig(save_file)
+    plt.close()
 
 # plot in cartesian space
 def plot_cart(func, label):
@@ -66,7 +67,7 @@ def plot_cart(func, label):
     X, Y = np.meshgrid(X, Y)
     interp = LinearNDInterpolator(list(zip(xs, ys)), zs)
     Z = interp(X,Y)
-    plt.pcolormesh(X,Y,Z, shading = 'auto')
+    plt.pcolormesh(X,Y,Z, cmap = 'hot', shading = 'auto')
     plt.colorbar()
     plt.axis('equal')
     plt.title(label)
