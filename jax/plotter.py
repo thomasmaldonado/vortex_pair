@@ -24,6 +24,7 @@ labels = ['V', 'Fu', 'Fv', 'C', 'EED', 'MED', 'HED']
 def plot(func, label):
     save_file = 'data/' + sys.argv[1] + '_' + label + '.png'
     plt.imshow(func, cmap='hot', interpolation='nearest')
+    plt.colorbar()
     plt.savefig(save_file)
 
 # plot in cartesian space
