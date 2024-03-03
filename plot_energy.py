@@ -5,7 +5,7 @@ from files import load
 numpoints = 100
 separations = []
 EEs, MEs, HEs, TEs = [], [], [], []
-for i in range(numpoints):
+for i in range(3, numpoints):
     file = 'data/' +  str(i) + '.npy'
     try:
         A, K, N, NU, NV, ier, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED = load(file)
