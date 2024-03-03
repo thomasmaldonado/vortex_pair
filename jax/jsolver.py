@@ -35,7 +35,7 @@ file = 'data/' + sys.argv[6] + '.npy'
 tol = 1.49012e-08 
 
 # define separation between vortices (=2A) and background charge density (=J)
-As = np.linspace(K/2, 2*K, 51)[1:]
+As = np.linspace(0, 10*K, 51)[1:]
 A = As[A_idx]
 J = -4/K**4
 
@@ -124,8 +124,8 @@ def dC_dv2(C, J, dvp_dv, d2vp_dv2, dvp):
 
 @jit
 def dF_dv1(Fu, Fv, us, vsm1, dvp_dv, dvp):
-    boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0))
-    boundary_left_v = jnp.zeros(Fv.shape[0])
+    boundary_left_u = (N/A) * (1-jnp.cos(us))
+    boundary_left_v = jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
     xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vsm1)
     avg_x = jnp.mean(xs)
     avg_y = jnp.mean(ys)
@@ -136,8 +136,8 @@ def dF_dv1(Fu, Fv, us, vsm1, dvp_dv, dvp):
 
 @jit
 def dF_dv2(Fu, Fv, us, vsm1, dvp_dv, d2vp_dv2, dvp):
-    boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0))
-    boundary_left_v = jnp.zeros(Fv.shape[0])
+    boundary_left_u = (N/A) * (1-jnp.cos(us))
+    boundary_left_v = jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
     xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vsm1)
     avg_x = jnp.mean(xs)
     avg_y = jnp.mean(ys)
@@ -214,7 +214,7 @@ x0_electrostatic[0:NUNV] = -1
 x0_electrostatic[-NUNV:] = np.sqrt(-J)
 x0_electrostatic = jnp.array(x0_electrostatic, dtype = jnp.float64)
 
-def newton(f, x_0, tol=1e-4, max_iter=30):
+def newton(f, x_0, tol=1e-10, max_iter=30):
     """
     A multivariate Newton root-finding routine.
 
