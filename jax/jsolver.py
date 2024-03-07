@@ -9,18 +9,18 @@ from jax import jit
 from jax import vmap, pmap, grad, jacfwd, jacrev
 import jax 
 from jax.numpy import linalg as jla
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 import time 
 from functools import partial
 from files import save
 #from jaxopt import ScipyRootFinding, Broyden
-jax.config.update('jax_platform_name', 'cpu')
+#jax.config.update('jax_platform_name', 'cpu')
 # from matplotlib import pyplot as plt
 # from scipy.optimize import fsolve
 # from files import load, save
 # from time import time
-sys.path.append('../')
-from coords import v_of_vp_lambdified, dvp_dv_lambdified, d2vp_dv2_lambdified, dv_dvp_lambdified
+#sys.path.append('../')
+from jcoords import v_of_vp_lambdified, dvp_dv_lambdified, d2vp_dv2_lambdified, dv_dvp_lambdified
 
 
 # command line arguments
@@ -35,7 +35,7 @@ file = 'data/' + sys.argv[6] + '.npy'
 tol = 1.49012e-08 
 
 # define separation between vortices (=2A) and background charge density (=J)
-As = np.linspace(0, 10*K, 51)[1:]
+As = np.linspace(0, 10*K, 41)[1:]
 A = As[A_idx]
 J = -4/K**4
 
@@ -214,7 +214,7 @@ x0_electrostatic[0:NUNV] = -1
 x0_electrostatic[-NUNV:] = np.sqrt(-J)
 x0_electrostatic = jnp.array(x0_electrostatic, dtype = jnp.float64)
 
-def newton(f, x_0, tol=1e-10, max_iter=30):
+def newton(f, x_0, tol=1e-9, max_iter=10):
     """
     A multivariate Newton root-finding routine.
 
@@ -310,10 +310,10 @@ HE = np.sum(HED*dA)
 
 # save solution
 save(file, A, K, N, NU, NV, 1, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED)
+print('saved')
 
 
-
-
+"""
 plt.imshow(V)
 plt.savefig('testV')
 plt.clf() 
@@ -335,8 +335,8 @@ plt.clf()
 plt.imshow(B)
 plt.savefig('testB')
 plt.clf()
+"""
 exit()
-
 
 if __name__ == '__main__':
     import solver 

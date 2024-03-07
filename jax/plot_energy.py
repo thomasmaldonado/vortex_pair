@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from files import load
 
-numpoints = 50
+numpoints = 40
 separations = []
 EEs, MEs, HEs, TEs = [], [], [], []
 for i in range(numpoints):
