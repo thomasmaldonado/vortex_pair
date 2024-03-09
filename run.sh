@@ -19,7 +19,7 @@ OUTPUT=$A_IDX
 python jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
 INPUT=$OUTPUT
 
-for A_IDX in $(seq -s ' ' $((MAX_A-1)) $MIN_A)
+for A_IDX in $(seq $((MAX_A-1)) -1 $MIN_A)
 do	
 	echo $A_IDX
 	OUTPUT=$A_IDX
