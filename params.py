@@ -2,7 +2,7 @@ import numpy as np
 import sys
 
 num_Ks = 9
-num_As = 50
+num_As = 20
 
 def K_func(K_idx, A_idx):
     Ks = np.logspace(-2, 2, num=num_Ks, base=2)
