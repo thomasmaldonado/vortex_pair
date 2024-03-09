@@ -18,5 +18,5 @@ mkdir -p data
 module purge
 module load anaconda3/2023.9
 conda activate jax-gpu
-python -u jsolver.py $SLURM_ARRAY_TASK_ID 400 1 80 80 $SLURM_ARRAY_TASK_ID
+bash run.sh
 #python plotter.py $SLURM_ARRAY_TASK_ID

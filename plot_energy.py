@@ -2,14 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from files import load
 
-numpoints = 100
+numpoints = 40
 separations = []
 EEs, MEs, HEs, TEs = [], [], [], []
-for i in range(3, numpoints):
+for i in range(numpoints):
     file = 'data/' +  str(i) + '.npy'
     try:
-        A, K, N, NU, NV, ier, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED = load(file)
-        TE = EE + ME + HE
+        K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED = load(file)
+        N = NR
         separations.append(2*A)
         EEs.append(EE)
         MEs.append(ME)

@@ -4,7 +4,9 @@ from sympy import symbols, Function, cos, sin, diff
 from sympy.utilities import lambdify
 from sympy.vector import CoordSys3D
 from sympy.functions.elementary.hyperbolic import cosh, sinh
-from numba import njit
+from jax import jit 
+import jax
+jax.config.update('jax_platform_name', 'cpu')
 
 # define symbols and functions
 u, v, a, j, n= symbols('u v a j n')
@@ -18,9 +20,16 @@ Au = Fu(u,v) - n * (cosh(v)-cos(u)) / a
 Av = Fv(u,v)
 
 V_syms = symbols('V, V_u, V_v, V_uu, V_uv, V_vv')
+V_0, V_u, V_v, V_uu, V_uv, V_vv = V_syms
+
 Fu_syms = symbols('Fu, Fu_u, Fu_v, Fu_uu, Fu_uv, Fu_vv')
+Fu_0, Fu_u, Fu_v, Fu_uu, Fu_uv, Fu_vv = Fu_syms
+
 Fv_syms = symbols('Fv, Fv_u, Fv_v, Fv_uu, Fv_uv, Fv_vv')
+Fv_0, Fv_u, Fv_v, Fv_uu, Fv_uv, Fv_vv = Fv_syms
+
 C_syms = symbols('C, C_u, C_v, C_uu, C_uv, C_vv')
+C_0, C_u, C_v, C_uu, C_uv, C_vv = C_syms  
 
 # helper function to turn functions into symbols
 def symbolify(expr, fun, syms):
@@ -98,29 +107,18 @@ args.extend(Fv_syms)
 args.extend(C_syms)
 args.extend([u, v, a, j, n])
 
-eq0_V_lambdified = lambdify(args, eq0_V)
-eq0_Fu_lambdified = lambdify(args, eq0_Fu)
-eq0_Fv_lambdified = lambdify(args, eq0_Fv)
-eq0_C_lambdified = lambdify(args, eq0_C)
+eq0_V_args = [V_vv, V_uu, V, j, C, v, a, u]
+eq0_Fu_args = [C, n, u, Fv_v, Fv_uv, v, Fu_vv, Fv_u, a, Fu]
+eq0_Fv_args = [v, Fu_u, Fu_v, Fv_uu, C, Fv, a, Fu_uv, u]
+eq0_C_args = [v, Fu, C_uu, n, V, C, C_vv, Fv, a, u]
+Eu_args = [u, v, a, V_u]
+Ev_args = [V_v, v, a, u]
+B_args = [v, Fv_u, Fu_v, Fu, Fv, a, u]
 
-# lambdify electric and magnetic fields
-E_args = list(V_syms)
-E_args.extend([u,v,a,n])
-
-Eu_lambdified = lambdify(E_args, Eu)
-Ev_lambdified = lambdify(E_args, Ev)
-
-B_args = list(Fu_syms)
-B_args.extend(Fv_syms)
-B_args.extend([u,v,a,n])
-
-B_lambdified = lambdify(B_args, B)
-
-# njit lambdified functions for performance boost
-eq0_V_lambdified = njit(eq0_V_lambdified)
-eq0_Fu_lambdified = njit(eq0_Fu_lambdified)
-eq0_Fv_lambdified = njit(eq0_Fv_lambdified)
-eq0_C_lambdified = njit(eq0_C_lambdified)
-Eu_lambdified = njit(Eu_lambdified)
-Ev_lambdified = njit(Ev_lambdified)
-B_lambdified = njit(B_lambdified)
+eq0_V_lambdified = jit(lambdify(eq0_V_args, eq0_V, modules='jax'))
+eq0_Fu_lambdified = jit(lambdify(eq0_Fu_args, eq0_Fu, modules='jax'))
+eq0_Fv_lambdified = jit(lambdify(eq0_Fv_args, eq0_Fv, modules='jax'))
+eq0_C_lambdified = jit(lambdify(eq0_C_args, eq0_C, modules='jax'))
+Eu_lambdified = jit(lambdify(Eu_args, Eu, modules='jax'))
+Ev_lambdified = jit(lambdify(Ev_args, Ev, modules='jax'))
+B_lambdified = jit(lambdify(B_args, B, modules='jax'))

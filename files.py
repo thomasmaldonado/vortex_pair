@@ -2,23 +2,20 @@
 
 import numpy as np
 
-def save(file, A, K, N, NU, NV, ier, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED):
+def save(file, K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED):
     NUNV = NU*NV
-    arr = np.zeros(9 + 7 * NUNV)
-    arr[0:9] = A, K, N, NU, NV, ier, EE, ME, HE
-    arr[9:] = np.concatenate((V.flatten(), Fu.flatten(), Fv.flatten(), C.flatten(), EED.flatten(), MED.flatten(), HED.flatten()))
+    arr = np.zeros(10 + NU + NV + 11 * NUNV)
+    arr[0:10] = K, A, NL, NR, NU, NV, EE, ME, HE, TE
+    arr[10:(10+NU)] = us
+    arr[(10+NU):(10+NU+NV)] = vs
+    arr[(10+NU+NV):] = np.concatenate([x.flatten() for x in [V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED]])
     np.save(file, arr)
 
 def load(file):
     arr = np.load(file)
-    A, K, N, NU, NV, ier, EE, ME, HE = arr[0:9]
-    N, NU, NV, ier = int(N), int(NU), int(NV), int(ier)
-    V, Fu, Fv, C, EED, MED, HED = np.split(arr[9:], 7)
-    V = np.reshape(V, (NU, NV))
-    Fu = np.reshape(Fu, (NU, NV))
-    Fv = np.reshape(Fv, (NU, NV))
-    C = np.reshape(C, (NU, NV))
-    EED = np.reshape(EED, (NU, NV))
-    MED = np.reshape(MED, (NU, NV))
-    HED = np.reshape(HED, (NU, NV))
-    return A, K, N, NU, NV, ier, EE, ME, HE, V, Fu, Fv, C, EED, MED, HED
+    K, A, NL, NR, NU, NV, EE, ME, HE, TE = arr[0:10]
+    NL, NR, NU, NV = [int(x) for x in [NL, NR, NU, NV]]
+    us = arr[10:(10+NU)]
+    vs = arr[(10+NU):(10+NU+NV)]
+    V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED = [np.reshape(x, (NU, NV)) for x in np.split(arr[(10+NU+NV):], 11)]
+    return K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED

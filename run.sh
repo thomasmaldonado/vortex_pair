@@ -3,8 +3,27 @@
 ### SEQUENTIAL SEPARATION SWEEP (FOR LOCAL USE) ###
 
 mkdir -p data
-for n in {0..99}; 
-do
-	python solver.py $n 10 1 10 10 $n
-	python plotter.py $n
+
+NA=$(python params.py a)
+MIN_A=0
+MAX_A=$((NA-1))
+
+A_IDX=$MAX_A
+K_IDX=3
+NL=1
+NR=1
+NU=60
+NV=60
+
+OUTPUT=$A_IDX
+python jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
+INPUT=$OUTPUT
+
+for A_IDX in $(seq $((MAX_A-1)) $MIN_A)
+do	
+	echo $A_IDX
+	OUTPUT=$A_IDX
+	python jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
+	INPUT=$OUTPUT
 done
+python plot_energy.py
