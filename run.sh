@@ -16,7 +16,7 @@ NU=20
 NV=20
 
 OUTPUT=$A_IDX
-python jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
+python -u jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
 INPUT=$OUTPUT
 
 for A_IDX in $(seq $((MAX_A-1)) -1 $MIN_A)
