@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from sympy import symbols, ln, solve
 from sympy.utilities import lambdify
 import jax
-#jax.config.update('jax_platform_name', 'cpu')
+jax.config.update('jax_platform_name', 'cpu')
 
 # vp represents primed coordinate on the domain (0, 1)
 v, vp, a, j = symbols('v v_p a j')
