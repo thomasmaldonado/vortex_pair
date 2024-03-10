@@ -147,10 +147,6 @@ def pack_magnetostatic(V, Fu, Fv, C):
     return jnp.concatenate((jnp.ravel(V), jnp.ravel(Fu), jnp.ravel(Fv), jnp.ravel(C)))
 
 @jit
-def pack_magnetostatic(V, Fu, Fv, C):
-    return jnp.concatenate((V.flatten(), Fu.flatten(), Fv.flatten(), C.flatten()))
-
-@jit
 def unpack_electrostatic(V_C):
     V = jnp.reshape(V_C[0:NUNV], (NU,NV))
     C = jnp.reshape(V_C[NUNV:], (NU,NV))
