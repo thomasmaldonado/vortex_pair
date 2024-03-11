@@ -11,6 +11,9 @@
 ##SBATCH --constraint=gpu80
 ##SBATCH --partition=mig
 ##SBATCH --gres=gpu:1 
+#SBATCH --array=0-40
+
+$A_IDX = $1
 NK=$(python params.py k)
 MIN_K=0
 MAX_K=$((NK-1))

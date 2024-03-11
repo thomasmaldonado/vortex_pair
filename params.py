@@ -2,10 +2,10 @@ import numpy as np
 import sys
 
 num_Ks = 9
-num_As = 20
+num_As = 40
 
 def K_func(K_idx, A_idx):
-    Ks = np.logspace(-2, 2, num=num_Ks, base=2)
+    Ks = np.logspace(1, 6, num=num_Ks, base=2)
     return Ks[K_idx]
 
 def A_func(K_idx, A_idx):

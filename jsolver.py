@@ -27,7 +27,7 @@ try:
 except:
     inputfile = None
 # default scipy tolerance
-tol = 1.49012e-08 
+tol = 1e-8
 max_iter = 30
 
 # define separation between vortices (=2A) and background charge density (=J)
@@ -140,11 +140,11 @@ def dF_dv2(Fu, Fv):
 # helper functions to pack/unpack and reshape the solutions
 @jit
 def pack_electrostatic(V, C):
-    return jnp.concatenate((jnp.ravel(V), jnp.ravel(C)))
+    return jnp.array(jnp.concatenate((jnp.ravel(V), jnp.ravel(C))), dtype = jnp.float64)
 
 @jit
 def pack_magnetostatic(V, Fu, Fv, C):
-    return jnp.concatenate((jnp.ravel(V), jnp.ravel(Fu), jnp.ravel(Fv), jnp.ravel(C)))
+    return jnp.array(jnp.concatenate((jnp.ravel(V), jnp.ravel(Fu), jnp.ravel(Fv), jnp.ravel(C))), dtype = jnp.float64)
 
 @jit
 def unpack_electrostatic(V_C):
@@ -213,7 +213,7 @@ def newton(f, x_0, tol=tol, max_iter=max_iter):
 if inputfile is None:
     # use bulk solution as initial guess for the electrostatic problem and perform Newton's method
     V0 = jnp.full((NU, NV), -1)
-    C0 = jnp.full((NU, NV), jnp.sqrt(-J))
+    C0 = jnp.full((NU, NV), jnp.sqrt(-J), dtype = jnp.float64)
     x0 = pack_electrostatic(V0, C0)
     start = time.time()
     electrostatic_solution = newton(f_electrostatic, x0)
