@@ -1,6 +1,6 @@
 ### BOUNDARY VALUE PROBLEM SOLVER ###
 import sys 
-from params import K_func, A_func
+from params import K_func, A_func, tol, max_iter
 from janalytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, B_lambdified, Eu_lambdified, Ev_lambdified
 from jderivatives import d_dx1, d_dx2, d_dy1, d_dy2
 from jcoords import BP2cart, cart2BP, cart2BPinfinity, v_of_vp_lambdified, dvp_dv1_lambdified, dvp_dv2_lambdified, dv_dvp1_lambdified
@@ -26,9 +26,6 @@ try:
     inputfile = 'data/' + sys.argv[8] + '.npy'
 except:
     inputfile = None
-# default scipy tolerance
-tol = 1e-8
-max_iter = 30
 
 # define separation between vortices (=2A) and background charge density (=J)
 K = K_func(K_idx, A_idx)

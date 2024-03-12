@@ -102,9 +102,9 @@ def plot_vec(Fu, Fv):
             Fxs.append(Fx)
             Fys.append(Fy)
     NX = 50
-    NY = 25
-    min_x, max_x = -2*K, 2*K
-    min_y, max_y = -K, K
+    NY = 50
+    min_x, max_x = -5*K, 5*K
+    min_y, max_y = -5*K, 5*K
     bulk_val = 0
     for x in [min_x, max_x]:
         for y in [min_y, max_y]:
@@ -131,8 +131,9 @@ def plot_vec(Fu, Fv):
     Q = ax1.quiver(X, Y, FX, FY, units='width', angles='xy', scale_units='xy', scale=2/3, pivot = 'middle')
     plt.xlim(-max_x, max_x)
     plt.ylim(-max_y, max_y)
-    plt.savefig('pair_test.pdf')
-    plt.show()
+    save_file = 'data/' + sys.argv[1] + '_Ji.png'
+    plt.savefig(save_file)
+    plt.close()    
 
 plot_vec(Ju, Jv)
 
