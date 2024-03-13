@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from jax import jit 
 import jax.scipy as jscipy
 import jax
-jax.config.update('jax_platform_name', 'cpu')
+#jax.config.update('jax_platform_name', 'cpu')
 
 @jit
 def _apply_boundaries(f, boundary_left, boundary_right):

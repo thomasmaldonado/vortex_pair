@@ -2,10 +2,11 @@
 
 ### POST-PROCESSING (ENERGY PLOT + GIFS) ###
 
+python plot_energy.py
+
 NK=$(python params.py K)
 MIN_K=0
 MAX_K=$((NK-1))
-
 
 for K_IDX in $(seq $MIN_K $MAX_K)
 do	
