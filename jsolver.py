@@ -158,7 +158,7 @@ def unpack_magnetostatic(V_Fu_Fv_C):
     return V, Fu, Fv, C
 
 # define function whose root yields the electrostatic solution (NL = NR = 0)
-@jit
+#@jit
 def f_electrostatic(V_C):
     V, C = unpack_electrostatic(V_C)
     V_uu = d_du2(V)
@@ -170,7 +170,7 @@ def f_electrostatic(V_C):
     return pack_electrostatic(eq0_V, eq0_C)
 
 # define function whose root yields the magnetostatic solution
-@jit
+#@jit
 def f_magnetostatic(V_Fu_Fv_C):
     V, Fu, Fv, C = unpack_magnetostatic(V_Fu_Fv_C)
     V_uu = d_du2(V)
@@ -192,7 +192,7 @@ def f_magnetostatic(V_Fu_Fv_C):
 def newton(f, x_0, tol=tol, max_iter=max_iter):
     x = x_0
     f_jac = jit(jax.jacobian(f))
-    @jit
+    #@jit
     def q(x):
         return x - jla.solve(f_jac(x), f(x))
     error = tol + 1
