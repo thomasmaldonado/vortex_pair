@@ -9,7 +9,7 @@ module load anaconda3/2024.2
 env_present=$(conda info --envs | grep -c "jax-gpu")
 if [ $env_present == 0 ]
 then
-	conda create --name jax-gpu jax "jaxlib==0.4.23=cuda118*" matplotlib ipykernel -c conda-forge
+	conda create --name jax-gpu jax "jaxlib==0.4.23=cuda118*" matplotlib -c conda-forge
 fi
 
 mkdir -p data
