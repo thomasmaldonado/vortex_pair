@@ -158,7 +158,7 @@ def unpack_magnetostatic(V_Fu_Fv_C):
     return V, Fu, Fv, C
 
 # define function whose root yields the electrostatic solution (NL = NR = 0)
-#@jit
+@jit
 def f_electrostatic(V_C):
     V, C = unpack_electrostatic(V_C)
     V_uu = d_du2(V)
@@ -170,7 +170,7 @@ def f_electrostatic(V_C):
     return pack_electrostatic(eq0_V, eq0_C)
 
 # define function whose root yields the magnetostatic solution
-#@jit
+@jit
 def f_magnetostatic(V_Fu_Fv_C):
     V, Fu, Fv, C = unpack_magnetostatic(V_Fu_Fv_C)
     V_uu = d_du2(V)
