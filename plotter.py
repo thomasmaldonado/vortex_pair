@@ -15,8 +15,10 @@ samesign = (NL / NR == 1)
 J = -4/K**4
 
 # define list of functions + labels to be plotted
-funcs = [V, Fu, Fv, C, EED, MED, HED]
-labels = ['V', 'Fu', 'Fv', 'C', 'EED', 'MED', 'HED']
+funcs = [V, Fu, Fv, C]
+funcs_cart = [EED, MED, HED, J0]
+labels = ['V', 'Fu', 'Fv', 'C']
+labels_cart = ['EED', 'MED', 'HED', 'J0']
 
 # plot in (u, vp) space
 def plot(func, label):
@@ -72,7 +74,6 @@ def plot_cart(func, label):
     plt.title(label)
     plt.savefig(save_file)
     plt.close()
-
 
 def plot_vec(Fu, Fv):
     xs = []
@@ -139,5 +140,6 @@ plot_vec(Ju, Jv)
 
 for i in range(len(funcs)):
     plot(funcs[i], labels[i])
-    plot_cart(funcs[i], labels[i])
 
+for i in range(len(funcs_cart)):
+    plot_cart(funcs_cart[i], labels_cart[i])
