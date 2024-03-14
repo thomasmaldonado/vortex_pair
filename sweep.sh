@@ -1,3 +1,5 @@
+#!/bin/bash
+
 module purge
 module load anaconda3/2024.2
 
@@ -10,6 +12,7 @@ fi
 
 conda activate jax-gpu
 NK=$(python params.py k)
+MIN_K=0
 MAX_K=$((NK-1))
 
-sbatch -J $MAX_K sweep.slurm
+sbatch -a $MIN_K-$MAX_K sweep.slurm

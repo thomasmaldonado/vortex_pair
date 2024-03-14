@@ -39,7 +39,6 @@ for k_idx in range(num_Ks):
         return Es
     energies = [EEs, MEs, HEs, TEs]
     for idx, Es in enumerate(energies):
-        print(Es)
         try:
             axes[idx].plot(separations, normalize(Es), c = colors[k_idx])
         except:
