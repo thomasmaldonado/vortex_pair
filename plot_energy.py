@@ -4,7 +4,6 @@ from files import load
 from params import num_Ks, num_As, K_func
 from matplotlib import cm
 
-
 colors = plt.cm.plasma(np.linspace(0,1,num_Ks))
 
 def normalize(Es):
@@ -19,7 +18,7 @@ for idx, ax in enumerate(axes):
     ax.set_ylabel(labels[idx])
     ax.set_yticks([])
 
-for k_idx in range(num_Ks-1,1,-1):
+for k_idx in range(num_Ks):
     separations = []
     EEs, MEs, HEs, TEs = [], [], [], []
     for a_idx in range(num_As):
@@ -40,6 +39,7 @@ for k_idx in range(num_Ks-1,1,-1):
         return Es
     energies = [EEs, MEs, HEs, TEs]
     for idx, Es in enumerate(energies):
+        print(Es)
         try:
             axes[idx].plot(separations, normalize(Es), c = colors[k_idx])
         except:
