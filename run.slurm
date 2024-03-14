@@ -7,8 +7,9 @@
 #SBATCH --ntasks=1           # how many instances of your command are run, total, across all nodes
 #SBATCH --cpus-per-task=1    # cpu-cores per task (>1 if multi-threaded tasks)
 #SBATCH --mem-per-cpu=4G         # memory per cpu-core (4G is default)
-#SBATCH --time=00:05:00         # total run time limit (HH:MM:SS)
+#SBATCH --time=00:30:00         # total run time limit (HH:MM:SS)
 #SBATCH --gres=gpu:1 
+#SBATCH --constraint=gpu80
 
 module purge
 module load anaconda3/2024.2
@@ -20,8 +21,8 @@ mkdir -p data/$K_IDX
 
 NL=1 # left winding number
 NR=1 # right winding number
-NU=50 # number of u points (resolution)
-NV=50 # number of v points (resolution)
+NU=80 # number of u points (resolution)
+NV=80 # number of v points (resolution)
 
 # read number of separations to be swept from params.py
 NA=$(python params.py a)
