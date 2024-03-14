@@ -1,7 +1,5 @@
 #!/bin/bash
 
-### KAPPA SWEEP (FOR REMOTE USE) ###
-
 module purge
 module load anaconda3/2024.2
 
@@ -12,16 +10,9 @@ then
 	conda create --name jax-gpu jax "jaxlib==0.4.23=cuda118*" sympy matplotlib -c conda-forge
 fi
 
-mkdir -p data
-
-# read number of kappas to be swept from params.py (for now, ignore this, since it's just set to 1)
+# call slurm script for a range of kappas specified in params.py
+conda activate jax-gpu
 NK=$(python params.py k)
 MIN_K=0
 MAX_K=$((NK-1))
-
-# sweep kappas and call slurm script for each kappa
-for K_IDX in $(seq $MIN_K $MAX_K)
-do	
-	mkdir -p data/$K_IDX
-	sbatch run.slurm $K_IDX
-done
+sbatch -a $MIN_K-$MAX_K run.slurm

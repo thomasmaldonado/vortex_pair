@@ -1,8 +1,8 @@
 import numpy as np
 import sys
 
-num_Ks = 2
-num_As = 10
+num_Ks = 1
+num_As = 1
 
 tol = 1e-6
 max_iter = 30
@@ -13,7 +13,7 @@ def K_func(K_idx, A_idx):
 
 def A_func(K_idx, A_idx):
     K = K_func(K_idx, A_idx)
-    As = np.linspace(K/4, K, num_As+1)[1:]
+    As = np.linspace(K/4, K, num_As)
     return As[A_idx]
 
 if __name__ == '__main__':
