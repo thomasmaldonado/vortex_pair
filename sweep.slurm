@@ -10,7 +10,7 @@
 #SBATCH --time=00:05:00         # total run time limit (HH:MM:SS)
 #SBATCH --gres=gpu:1 
 
-#SBATCH --array=0-0 # note that this must read 0-MAX_K with MAX_K given by params.py (MAX_K=NUM_K-1)
+#SBATCH --array=0-$1 # note that this must read 0-MAX_K with MAX_K given by params.py (MAX_K=NUM_K-1)
 
 module purge
 module load anaconda3/2024.2
