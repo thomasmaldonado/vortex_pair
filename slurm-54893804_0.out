@@ -1,0 +1,299 @@
+iteration 1, error = 14.22501182962027
+iteration 2, error = 0.37463986070735505
+iteration 3, error = 0.0006216953332597834
+iteration 4, error = 2.411278656000069e-09
+Elapsed time for electrostatic solution:  3.474036931991577
+iteration 1, error = 268.2142764555883
+iteration 2, error = 157.7055676284753
+iteration 3, error = 82.15846885256671
+iteration 4, error = 4.899078399659931
+iteration 5, error = 0.9017414546247524
+iteration 6, error = 0.001998872989296282
+iteration 7, error = 1.1642479609774109e-07
+iteration 8, error = 1.9837434394074545e-08
+Elapsed time for magnetostatic solution:  18.5812566280365
+Saved: 0 0 1 1 85 85 0/0 
+iteration 1, error = 6.478785547496567
+iteration 2, error = 0.8922873403485713
+iteration 3, error = 0.004854724097926756
+iteration 4, error = 2.477905194938047e-07
+iteration 5, error = 7.816732001621748e-09
+Elapsed time for magnetostatic solution:  13.425809383392334
+Saved: 0 1 1 1 85 85 0/1 0/0 
+iteration 1, error = 6.381347563539645
+iteration 2, error = 0.9366647036571802
+iteration 3, error = 0.005543518826365194
+iteration 4, error = 3.278510659783723e-07
+iteration 5, error = 5.000634588285621e-09
+Elapsed time for magnetostatic solution:  13.434450626373291
+Saved: 0 2 1 1 85 85 0/2 0/1 
+iteration 1, error = 6.292686559541718
+iteration 2, error = 0.9786755524146602
+iteration 3, error = 0.006277502641580262
+iteration 4, error = 4.445161941462069e-07
+iteration 5, error = 2.4762640829417116e-08
+Elapsed time for magnetostatic solution:  13.426910400390625
+Saved: 0 3 1 1 85 85 0/3 0/2 
+iteration 1, error = 6.210111917998606
+iteration 2, error = 1.0169831517992618
+iteration 3, error = 0.007031336514275893
+iteration 4, error = 5.41135084179982e-07
+iteration 5, error = 1.4381367388125728e-08
+Elapsed time for magnetostatic solution:  13.435781955718994
+Saved: 0 4 1 1 85 85 0/4 0/3 
+iteration 1, error = 6.131034451365411
+iteration 2, error = 1.050306883059249
+iteration 3, error = 0.007772943331389462
+iteration 4, error = 7.422658902790195e-07
+iteration 5, error = 3.4019601119658435e-07
+iteration 6, error = 1.4348695421198692e-07
+iteration 7, error = 7.278143331415353e-08
+Elapsed time for magnetostatic solution:  17.15671682357788
+Saved: 0 5 1 1 85 85 0/5 0/4 
+iteration 1, error = 6.053213237024321
+iteration 2, error = 1.0775262866064232
+iteration 3, error = 0.008466295815578284
+iteration 4, error = 8.159621080297261e-07
+iteration 5, error = 1.8231938786476376e-08
+Elapsed time for magnetostatic solution:  13.435250997543335
+Saved: 0 6 1 1 85 85 0/6 0/5 
+iteration 1, error = 5.974855821882354
+iteration 2, error = 1.0977421549897715
+iteration 3, error = 0.009074757532082435
+iteration 4, error = 9.570680173829455e-07
+iteration 5, error = 5.8509843472837666e-08
+Elapsed time for magnetostatic solution:  13.451232433319092
+Saved: 0 7 1 1 85 85 0/7 0/6 
+iteration 1, error = 5.894550169354778
+iteration 2, error = 1.1102869404941338
+iteration 3, error = 0.009564179312516737
+iteration 4, error = 1.092756657426084e-06
+iteration 5, error = 1.8295067009286785e-07
+iteration 6, error = 1.1537808059192039e-07
+iteration 7, error = 1.5318008960475942e-08
+Elapsed time for magnetostatic solution:  17.131252765655518
+Saved: 0 8 1 1 85 85 0/8 0/7 
+iteration 1, error = 5.8110677088207625
+iteration 2, error = 1.1146939621230412
+iteration 3, error = 0.009905235211026984
+iteration 4, error = 1.1877295833046476e-06
+iteration 5, error = 2.8718793232158155e-07
+iteration 6, error = 8.31860772257018e-08
+Elapsed time for magnetostatic solution:  15.30578064918518
+Saved: 0 9 1 1 85 85 0/9 0/8 
+iteration 1, error = 5.723120355512604
+iteration 2, error = 1.1106478624272054
+iteration 3, error = 0.010074990043468282
+iteration 4, error = 1.2507110321530097e-06
+iteration 5, error = 2.7838840208566877e-07
+iteration 6, error = 1.543147670260979e-07
+iteration 7, error = 1.4297214357419859e-07
+iteration 8, error = 2.7442172986441855e-08
+Elapsed time for magnetostatic solution:  18.988876581192017
+Saved: 0 10 1 1 85 85 0/10 0/9 
+iteration 1, error = 5.62916681812616
+iteration 2, error = 1.0979426647084916
+iteration 3, error = 0.010058005525378411
+iteration 4, error = 1.2689549346083285e-06
+iteration 5, error = 4.120260721167112e-08
+Elapsed time for magnetostatic solution:  13.44911003112793
+Saved: 0 11 1 1 85 85 0/11 0/10 
+iteration 1, error = 5.5273464461006325
+iteration 2, error = 1.0764682928700149
+iteration 3, error = 0.009847463922356485
+iteration 4, error = 1.591510017991819e-05
+iteration 5, error = 1.0044446414355002e-05
+iteration 6, error = 8.389779914452294e-06
+iteration 7, error = 2.3914572907228526e-06
+iteration 8, error = 7.641271078215261e-06
+iteration 9, error = 3.631213178195793e-06
+iteration 10, error = 4.677112518222404e-06
+iteration 11, error = 7.681492098651434e-06
+iteration 12, error = 6.627212912033187e-06
+iteration 13, error = 3.6148124742165023e-06
+iteration 14, error = 1.05013795988678e-05
+iteration 15, error = 1.698926366863614e-05
+iteration 16, error = 8.126701564226916e-06
+iteration 17, error = 3.809537869891539e-06
+iteration 18, error = 1.102647720300499e-05
+iteration 19, error = 2.3882962952083094e-06
+iteration 20, error = 2.4776289427518294e-06
+iteration 21, error = 5.797819483218098e-07
+iteration 22, error = 7.964945920176636e-06
+iteration 23, error = 2.844517018393467e-06
+iteration 24, error = 2.783702922410612e-06
+iteration 25, error = 4.336608546088787e-06
+iteration 26, error = 1.924033088583151e-06
+iteration 27, error = 3.1316766249123044e-06
+iteration 28, error = 4.555925791241823e-06
+iteration 29, error = 1.7593025376037221e-06
+iteration 30, error = 6.951706491331528e-06
+Traceback (most recent call last):
+  File "/home/tm7623/vortex_pair/jsolver.py", line 230, in <module>
+    magnetostatic_solution = newton(f_magnetostatic, x0)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tm7623/vortex_pair/jsolver.py", line 203, in newton
+    raise Exception('Max iteration reached without convergence')
+Exception: Max iteration reached without convergence
+Traceback (most recent call last):
+  File "/home/tm7623/vortex_pair/plotter.py", line 12, in <module>
+    K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED = load(file)
+                                                                                                 ^^^^^^^^^^
+  File "/home/tm7623/vortex_pair/files.py", line 15, in load
+    arr = np.load(file)
+          ^^^^^^^^^^^^^
+  File "/home/tm7623/.conda/envs/jax-gpu/lib/python3.12/site-packages/numpy/lib/npyio.py", line 427, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/0/12.npy'
+iteration 1, error = 11.6847359103809
+iteration 2, error = 0.31125270413344025
+iteration 3, error = 0.000556373387427458
+iteration 4, error = 1.9519531295368886e-09
+Elapsed time for electrostatic solution:  3.4593076705932617
+iteration 1, error = 220.54267879114352
+iteration 2, error = 94.04861980139712
+iteration 3, error = 69.08087341213198
+iteration 4, error = 21.114133370456795
+iteration 5, error = 3.5055446532415466
+iteration 6, error = 0.11503902882981384
+iteration 7, error = 0.00013720841298815552
+iteration 8, error = 8.22502766257363e-08
+Elapsed time for magnetostatic solution:  18.53172731399536
+Saved: 0 13 1 1 85 85 0/13 0/12 
+iteration 1, error = 5.2918508112061176
+iteration 2, error = 1.007425970938571
+iteration 3, error = 0.008869315195650746
+iteration 4, error = 1.02772918491908e-06
+iteration 5, error = 5.696328135663268e-08
+Elapsed time for magnetostatic solution:  13.43855905532837
+Saved: 0 14 1 1 85 85 0/14 0/13 
+iteration 1, error = 5.154577126524503
+iteration 2, error = 0.960477409550164
+iteration 3, error = 0.008141974238131545
+iteration 4, error = 8.757070472487555e-07
+iteration 5, error = 1.5246130477675798e-08
+Elapsed time for magnetostatic solution:  13.423747062683105
+Saved: 0 15 1 1 85 85 0/15 0/14 
+iteration 1, error = 5.003074228506238
+iteration 2, error = 0.9061388183990305
+iteration 3, error = 0.00730123668097474
+iteration 4, error = 7.336921134549998e-07
+iteration 5, error = 8.162829921200785e-08
+Elapsed time for magnetostatic solution:  13.440504789352417
+Saved: 0 16 1 1 85 85 0/16 0/15 
+iteration 1, error = 4.837929145517831
+iteration 2, error = 0.8455145847676001
+iteration 3, error = 0.006391849990014881
+iteration 4, error = 5.555885702058516e-07
+iteration 5, error = 5.995459500675217e-08
+Elapsed time for magnetostatic solution:  13.419245719909668
+Saved: 0 17 1 1 85 85 0/17 0/16 
+iteration 1, error = 4.661228738263121
+iteration 2, error = 0.7800525501857879
+iteration 3, error = 0.005461892237855153
+iteration 4, error = 7.358454578801724e-06
+iteration 5, error = 1.6865479153322452e-06
+iteration 6, error = 4.94912036670987e-06
+iteration 7, error = 2.094656036671399e-06
+iteration 8, error = 3.798516814248076e-06
+iteration 9, error = 5.099747585609554e-06
+iteration 10, error = 6.249231380853729e-07
+iteration 11, error = 1.4248075490086582e-06
+iteration 12, error = 1.154569781866054e-05
+iteration 13, error = 1.844756333296144e-05
+iteration 14, error = 3.628649462378117e-05
+iteration 15, error = 1.1858828726368424e-06
+iteration 16, error = 1.5394609745994407e-05
+iteration 17, error = 9.322887449579274e-07
+iteration 18, error = 9.97069443886827e-06
+iteration 19, error = 3.3869583865026324e-05
+iteration 20, error = 1.3870418592548779e-05
+iteration 21, error = 1.697190927610224e-05
+iteration 22, error = 3.790675564216513e-06
+iteration 23, error = 5.937710462798819e-06
+iteration 24, error = 5.638702657131372e-06
+iteration 25, error = 1.794258491244891e-05
+iteration 26, error = 3.8744809703304595e-05
+iteration 27, error = 1.7557358553922906e-05
+iteration 28, error = 2.0400629663419462e-05
+iteration 29, error = 5.493019103024386e-07
+iteration 30, error = 7.580844440474759e-06
+Traceback (most recent call last):
+  File "/home/tm7623/vortex_pair/jsolver.py", line 230, in <module>
+    magnetostatic_solution = newton(f_magnetostatic, x0)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tm7623/vortex_pair/jsolver.py", line 203, in newton
+    raise Exception('Max iteration reached without convergence')
+Exception: Max iteration reached without convergence
+Traceback (most recent call last):
+  File "/home/tm7623/vortex_pair/plotter.py", line 12, in <module>
+    K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED = load(file)
+                                                                                                 ^^^^^^^^^^
+  File "/home/tm7623/vortex_pair/files.py", line 15, in load
+    arr = np.load(file)
+          ^^^^^^^^^^^^^
+  File "/home/tm7623/.conda/envs/jax-gpu/lib/python3.12/site-packages/numpy/lib/npyio.py", line 427, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/0/18.npy'
+iteration 1, error = 10.562187947662046
+iteration 2, error = 0.2577367880677109
+iteration 3, error = 0.0004237493884052317
+iteration 4, error = 1.2951004249794106e-09
+Elapsed time for electrostatic solution:  3.4599499702453613
+iteration 1, error = 207.21990013617508
+iteration 2, error = 76.25644847202128
+iteration 3, error = 68.49793941443899
+iteration 4, error = 19.562792596479202
+iteration 5, error = 3.7434351623115374
+iteration 6, error = 0.14316388520564213
+iteration 7, error = 0.00023360169470265855
+iteration 8, error = 5.077121410905015e-08
+Elapsed time for magnetostatic solution:  18.674567222595215
+Saved: 0 19 1 1 85 85 0/19 0/18 
+convert: unable to open image `12_V.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_V.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_V.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_V.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_V.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_Fu.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fu.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fu.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fu.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fu.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_Fv.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fv.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fv.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fv.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Fv.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_C.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_C.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_C.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_C.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_C.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_EED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_EED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_EED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_EED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_EED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_MED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_MED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_MED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_MED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_MED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_HED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_HED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_HED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_HED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_HED_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_J0_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_J0_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_J0_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_J0_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_J0_cart.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `12_Ji.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Ji.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Ji.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Ji.png': No such file or directory @ error/blob.c/OpenBlob/2960.
+convert: unable to open image `18_Ji.png': No such file or directory @ error/blob.c/OpenBlob/2960.

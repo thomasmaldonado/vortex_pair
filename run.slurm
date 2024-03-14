@@ -21,8 +21,8 @@ mkdir -p data/$K_IDX
 
 NL=1 # left winding number
 NR=1 # right winding number
-NU=60 # number of u points (resolution)
-NV=60 # number of v points (resolution)
+NU=85 # number of u points (resolution)
+NV=85 # number of v points (resolution)
 
 # read number of separations to be swept from params.py
 NA=$(python params.py a)
