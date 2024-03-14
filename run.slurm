@@ -16,8 +16,8 @@ K_IDX=$1 # (kappa index, with kappa taken from params.py)
 A_IDX=$SLURM_ARRAY_TASK_ID # (a index, with a taken from params.py)
 NL=1 # left winding number
 NR=1 # right winding number
-NU=50 # number of u points (resolution)
-NV=50 # number of v points (resolution)
+NU=60 # number of u points (resolution)
+NV=60 # number of v points (resolution)
 OUTPUT=$K_IDX/$A_IDX # output file
 
 mkdir -p data/$K_IDX
