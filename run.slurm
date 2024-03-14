@@ -33,8 +33,9 @@ MAX_A=$((NA-1))
 for A_IDX in $(seq $MIN_A $MAX_A)
 do	
     OUTPUT=$K_IDX/$A_IDX # output file
-    python -u jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT
+    python -u jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
     python plotter.py $OUTPUT
+    INPUT=$OUTPUT
 done
 
 # process data
