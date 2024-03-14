@@ -58,6 +58,8 @@ def plot_cart(func, label):
         bulk_val = -1
     if label == 'C':
         bulk_val = np.sqrt(-J)
+    if label == 'J0':
+        bulk_val = J
     for x in [min_x, max_x]:
         for y in [min_y, max_y]:
             xs.append(x)
