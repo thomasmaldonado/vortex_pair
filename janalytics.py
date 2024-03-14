@@ -1,6 +1,6 @@
 ### LAMBDIFICATION OF BOUNDARY VALUE PROBLEM ###
 
-from sympy import symbols, Function, cos, sin, diff
+from sympy import symbols, Function, cos, sin, diff, exp
 from sympy.utilities import lambdify
 from sympy.vector import CoordSys3D
 from sympy.functions.elementary.hyperbolic import cosh, sinh
@@ -16,8 +16,8 @@ Fu = Function('Fu')
 Fv = Function('Fv')
 C = Function('C')
 
-Au = Fu(u,v) - n * (cosh(v)-cos(u)) / a
-Av = Fv(u,v)
+Au = Fu(u,v) + (n/(2*a)) * (cos(u)-exp(v))
+Av = Fv(u,v) + (n/(2*a)) * sin(u)
 
 V_syms = symbols('V, V_u, V_v, V_uu, V_uv, V_vv')
 V_0, V_u, V_v, V_uu, V_uv, V_vv = V_syms
@@ -69,7 +69,7 @@ def laplacian(f):
 
 # define equations of state in the form eq0 = 0
 eq0_V = (-laplacian(V(u,v)) + C(u,v)**2 * V(u,v) - j).doit()
-eq0_F = (curl(curl(Au*u_hat + Av*v_hat).simplify()) + C(u,v)**2 * (Au*u_hat + Av*v_hat)).doit().expand()
+eq0_F = (curl(curl(Au*u_hat + Av*v_hat)) + C(u,v)**2 * (Au*u_hat + Av*v_hat)).doit().expand()
 eq0_Fu = eq0_F.dot(u_hat)
 eq0_Fv = eq0_F.dot(v_hat)
 eq0_C = (-laplacian(C(u,v)) + (1 - V(u,v)**2 + Au**2 + Av**2) * C(u,v)).doit()
@@ -92,11 +92,11 @@ eq0_C = symbolify(eq0_C, Fv(u,v), Fv_syms)
 eq0_C = symbolify(eq0_C, C(u,v), C_syms)
 
 # define electric and magnetic fields for future calculation of energies
-B = curl(Au*u_hat+Av*v_hat).dot(z_hat).expand().simplify()
+B = curl(Au*u_hat+Av*v_hat).dot(z_hat)
 B = symbolify(B, Fu(u,v), Fu_syms)
 B = symbolify(B, Fv(u,v), Fv_syms)
 
-E = -gradient(V(u,v)).doit().simplify()
+E = -gradient(V(u,v))
 Eu = symbolify(E.dot(u_hat), V(u,v), V_syms)
 Ev = symbolify(E.dot(v_hat), V(u,v), V_syms)
 
@@ -108,12 +108,13 @@ args.extend(C_syms)
 args.extend([u, v, a, j, n])
 
 eq0_V_args = [V_vv, V_uu, V, j, C, v, a, u]
-eq0_Fu_args = [C, n, u, Fv_v, Fv_uv, v, Fu_vv, Fv_u, a, Fu]
-eq0_Fv_args = [v, Fu_u, Fu_v, Fv_uu, C, Fv, a, Fu_uv, u]
+eq0_Fu_args = [C, n, u, Fv_v, Fv_uv, v, Fu_vv, Fv_u, a, Fu, Fv, Fu_v] # added Fv, Fu_v
+eq0_Fv_args = [v, Fu_u, Fu_v, Fv_uu, C, Fv, a, Fu_uv, u, Fu, n, Fv_u] # added Fu, n, Fv_u
 eq0_C_args = [v, Fu, C_uu, n, V, C, C_vv, Fv, a, u]
 Eu_args = [u, v, a, V_u]
 Ev_args = [V_v, v, a, u]
-B_args = [v, Fv_u, Fu_v, Fu, Fv, a, u]
+B_args = [v, Fv_u, Fu_v, Fu, Fv, a, u, n] # added n
+
 
 eq0_V_lambdified = jit(lambdify(eq0_V_args, eq0_V, modules='jax'))
 eq0_Fu_lambdified = jit(lambdify(eq0_Fu_args, eq0_Fu, modules='jax'))

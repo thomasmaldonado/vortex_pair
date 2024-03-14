@@ -106,14 +106,14 @@ def dC_dv2(C):
 if samesign:
     @jit
     def boundary_left_F(Fu, Fv):
-        boundary_left_u = (N/A) * (1-jnp.cos(us))
+        boundary_left_u = - (N/(2*A))*(jnp.cos(us) - 1)
         boundary_left_v = jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
         return boundary_left_u, boundary_left_v
 else:
     @jit
     def boundary_left_F(Fu, Fv):
-        boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0))
-        boundary_left_v = jnp.zeros(Fv.shape[0])
+        boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0)) + (N/(2*A)) * (1 - jnp.exp(vs[0]))
+        boundary_left_v = -(N/(2*A)) * jnp.sin(us)
         return boundary_left_u, boundary_left_v
 
 @jit
@@ -183,8 +183,8 @@ def f_magnetostatic(V_Fu_Fv_C):
     C_uu = d_du2(C)
     C_vv = dC_dv2(C)
     eq0_V = eq0_V_lambdified(V_vv, V_uu, V, J, C, vv, A, uu)
-    eq0_Fu = eq0_Fu_lambdified(C, N, uu, Fv_v, Fv_uv, vv, Fu_vv, Fv_u, A, Fu)
-    eq0_Fv = eq0_Fv_lambdified(vv, Fu_u, Fu_v, Fv_uu, C, Fv, A, Fu_uv, uu)
+    eq0_Fu = eq0_Fu_lambdified(C, N, uu, Fv_v, Fv_uv, vv, Fu_vv, Fv_u, A, Fu, Fv, Fu_v)
+    eq0_Fv = eq0_Fv_lambdified(vv, Fu_u, Fu_v, Fv_uu, C, Fv, A, Fu_uv, uu, Fu, N, Fv_u)
     eq0_C = eq0_C_lambdified(vv, Fu, C_uu, N, V, C, C_vv, Fv, A, uu)
     return pack_magnetostatic(eq0_V, eq0_Fu, eq0_Fv, eq0_C)
 
@@ -250,7 +250,7 @@ Fu_v, Fv_v = dF_dv1(Fu, Fv)
 
 Eu = Eu_lambdified(uu, vv, A, V_u)
 Ev = Ev_lambdified(V_v, vv, A, uu)
-B = B_lambdified(vv, Fv_u, Fu_v, Fu, Fv, A, uu)
+B = B_lambdified(vv, Fv_u, Fu_v, Fu, Fv, A, uu, N)
 
 EED = (Eu**2 + Ev**2)/2
 MED = (B**2)/2
