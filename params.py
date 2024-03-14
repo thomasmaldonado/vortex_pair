@@ -8,13 +8,12 @@ tol = 1e-6
 max_iter = 30
 
 def K_func(K_idx, A_idx):
-    Ks = np.logspace(2, 4, num=num_Ks, base=2)
+    Ks = np.logspace(1, 5, num=num_Ks, base=2)
     return Ks[K_idx]
 
 def A_func(K_idx, A_idx):
     K = K_func(K_idx, A_idx)
     As = np.logspace(1, 2, num=num_As, base = K) / 4
-    #As = np.linspace(K/4, K, num_As)
     return As[A_idx]
 
 if __name__ == '__main__':

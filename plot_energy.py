@@ -25,7 +25,7 @@ for k_idx in range(num_Ks):
         file = 'data/' + str(k_idx) + '/' + str(a_idx) + '.npy'
         try:
             K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED = load(file)
-            separations.append(4*A/K)
+            separations.append(4*A)
             EEs.append(EE)
             MEs.append(ME)
             HEs.append(HE)
@@ -40,12 +40,15 @@ for k_idx in range(num_Ks):
     energies = [EEs, MEs, HEs, TEs]
     for idx, Es in enumerate(energies):
         try:
-            axes[idx].plot(separations, normalize(Es), c = colors[k_idx])
+            array = np.array(separations)
+            base = K
+            log_separations = np.emath.logn(base, array)
+            axes[idx].plot(log_separations, normalize(Es), c = colors[k_idx])
         except:
             pass
 
 plt.subplots_adjust(hspace=0)
-axes[-1].set_xlabel('Separation / ' + r'$\xi$')
+axes[-1].set_xlabel('Separation')
 
 
 import matplotlib as mpl
