@@ -11,7 +11,7 @@ import jax
 from jax.numpy import linalg as jla
 import time 
 from files import save, load
-jax.config.update("jax_enable_x64", True)
+#jax.config.update("jax_enable_x64", True)
 #jax.config.update('jax_platform_name', 'cpu')
 
 # command line arguments
@@ -207,7 +207,10 @@ def newton(f, x_0, tol=tol, max_iter=max_iter):
         jax.debug.print('iteration {n}, error = {error}', n=n, error=error)
     return x
 
-if inputfile is None:
+try:
+    # use input file solution as initial guess for magnetostatic problem
+    _, _, _, _, _, _, _, _, _, _, _, _, V0, Fu0, Fv0, C0, _, _, _, _, _, _, _ = load(inputfile)
+except:
     # use bulk solution as initial guess for the electrostatic problem and perform Newton's method
     V0 = jnp.full((NU, NV), -1)
     C0 = jnp.full((NU, NV), jnp.sqrt(-J))
@@ -220,10 +223,6 @@ if inputfile is None:
     # use electrostatic solution as initial guess for magnetostatic problem
     V0, C0 = unpack_electrostatic(electrostatic_solution)
     Fu0 , Fv0 = jnp.zeros((NU, NV)), jnp.zeros((NU, NV))
-else:
-    # use input file solution as initial guess for magnetostatic problem
-    _, _, _, _, _, _, _, _, _, _, _, _, V0, Fu0, Fv0, C0, _, _, _, _, _, _, _ = load(inputfile)
-
 
 # perform Newton's method 
 x0 = pack_magnetostatic(V0, Fu0, Fv0, C0)
