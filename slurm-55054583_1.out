@@ -1,0 +1,183 @@
+iteration 1, error = 3.5206441367181855
+iteration 2, error = 0.11643635829040881
+iteration 3, error = 0.00028673322293921256
+iteration 4, error = 2.4798812996718466e-09
+Elapsed time for electrostatic solution:  4.32354474067688
+iteration 1, error = 96.21736494666827
+iteration 2, error = 82.4759303258878
+iteration 3, error = 30.603050742862198
+iteration 4, error = 44.3467604406916
+iteration 5, error = 2.4728377999907987
+iteration 6, error = 0.5715450942121219
+iteration 7, error = 0.000314376812373437
+iteration 8, error = 4.405735963482216e-08
+Elapsed time for magnetostatic solution:  18.64414072036743
+Saved: 1 0 1 1 85 85 1/0 
+flux without 00 -6.218560709088947
+full flux: -5.498503001680694
+iteration 1, error = 5.873121609592682
+iteration 2, error = 0.7459216483122124
+iteration 3, error = 0.008060493414956063
+iteration 4, error = 6.097633026713846e-07
+Elapsed time for magnetostatic solution:  11.605227708816528
+Saved: 1 1 1 1 85 85 1/1 1/0 
+flux without 00 -6.245840707846833
+full flux: -5.629106410417371
+iteration 1, error = 5.768046601233215
+iteration 2, error = 0.9429671264169813
+iteration 3, error = 0.014248780509553494
+iteration 4, error = 2.6235027233882695e-06
+iteration 5, error = 3.0743024153923906e-09
+Elapsed time for magnetostatic solution:  13.41757845878601
+Saved: 1 2 1 1 85 85 1/2 1/1 
+flux without 00 -6.265783982239892
+full flux: -5.753136166876926
+iteration 1, error = 5.802212972283856
+iteration 2, error = 1.1820542024771044
+iteration 3, error = 0.025523885746537363
+iteration 4, error = 1.0558018865217012e-05
+iteration 5, error = 1.3629172158111232e-08
+Elapsed time for magnetostatic solution:  13.423981189727783
+Saved: 1 3 1 1 85 85 1/3 1/2 
+flux without 00 -6.279530510007524
+full flux: -5.866783666502719
+iteration 1, error = 5.961359948254734
+iteration 2, error = 1.4517410195391143
+iteration 3, error = 0.04436118226357757
+iteration 4, error = 3.803565763799942e-05
+iteration 5, error = 1.092428147069223e-08
+Elapsed time for magnetostatic solution:  13.432880401611328
+Saved: 1 4 1 1 85 85 1/4 1/3 
+flux without 00 -6.288224905181494
+full flux: -5.967364984225212
+iteration 1, error = 6.19144771388642
+iteration 2, error = 1.7238718178830437
+iteration 3, error = 0.07126688012787198
+iteration 4, error = 0.0001140560916890767
+iteration 5, error = 2.6388324357106594e-08
+Elapsed time for magnetostatic solution:  13.408799886703491
+Saved: 1 5 1 1 85 85 1/5 1/4 
+flux without 00 -6.292952346109552
+full flux: -6.053361872771247
+iteration 1, error = 6.393502023387361
+iteration 2, error = 1.9483538288738045
+iteration 3, error = 0.10051467871106605
+iteration 4, error = 0.0002577512437032118
+iteration 5, error = 4.2995879670070004e-08
+Elapsed time for magnetostatic solution:  13.416522026062012
+Saved: 1 6 1 1 85 85 1/6 1/5 
+flux without 00 -6.294686038928269
+full flux: -6.124352250386783
+iteration 1, error = 6.443589357962111
+iteration 2, error = 2.0625526891013517
+iteration 3, error = 0.11898415486324886
+iteration 4, error = 0.0003982558922168505
+iteration 5, error = 1.993948006299722e-07
+Elapsed time for magnetostatic solution:  13.408583641052246
+Saved: 1 7 1 1 85 85 1/7 1/6 
+flux without 00 -6.294255691744976
+full flux: -6.180837751001917
+iteration 1, error = 6.249758809038342
+iteration 2, error = 2.0219514853373006
+iteration 3, error = 0.11542732151863593
+iteration 4, error = 0.0003976549749700003
+iteration 5, error = 1.5090557978651002e-08
+Elapsed time for magnetostatic solution:  13.392204761505127
+Saved: 1 8 1 1 85 85 1/8 1/7 
+flux without 00 -6.2923289133960685
+full flux: -6.223994995554154
+iteration 1, error = 5.804801052026797
+iteration 2, error = 1.8289472695964706
+iteration 3, error = 0.09209000008322754
+iteration 4, error = 0.0002570735445689119
+iteration 5, error = 1.8343888913436015e-08
+Elapsed time for magnetostatic solution:  13.405164241790771
+Saved: 1 9 1 1 85 85 1/9 1/8 
+flux without 00 -6.289407359808536
+full flux: -6.255412273202223
+iteration 1, error = 5.1852653454585464
+iteration 2, error = 1.530932244749279
+iteration 3, error = 0.06185904673232129
+iteration 4, error = 0.00011283514723811044
+iteration 5, error = 2.9655251260485617e-08
+Elapsed time for magnetostatic solution:  13.672704219818115
+Saved: 1 10 1 1 85 85 1/10 1/9 
+flux without 00 -6.285841884191011
+full flux: -6.276867624673004
+iteration 1, error = 4.512037623339498
+iteration 2, error = 1.1950290905714416
+iteration 3, error = 0.036186051656612137
+iteration 4, error = 3.631938349284526e-05
+iteration 5, error = 1.239067228063213e-08
+Elapsed time for magnetostatic solution:  13.465992212295532
+Saved: 1 11 1 1 85 85 1/11 1/10 
+flux without 00 -6.281863932521365
+full flux: -6.2901716363925235
+iteration 1, error = 3.9033704151604534
+iteration 2, error = 0.8811146915003579
+iteration 3, error = 0.019170282316463016
+iteration 4, error = 9.483795370608314e-06
+iteration 5, error = 1.6430162040763035e-08
+Elapsed time for magnetostatic solution:  13.402899026870728
+Saved: 1 12 1 1 85 85 1/12 1/11 
+flux without 00 -6.277628704546644
+full flux: -6.2970712598544205
+iteration 1, error = 3.4337479121313237
+iteration 2, error = 0.6247019199495467
+iteration 3, error = 0.00958148829896219
+iteration 4, error = 2.2591266925667366e-06
+iteration 5, error = 7.024661599798821e-08
+Elapsed time for magnetostatic solution:  13.406316041946411
+Saved: 1 13 1 1 85 85 1/13 1/12 
+flux without 00 -6.273259272288111
+full flux: -6.299189761593737
+iteration 1, error = 3.1168768350893505
+iteration 2, error = 0.4351127257297483
+iteration 3, error = 0.00469241458947918
+iteration 4, error = 5.593574887322929e-07
+Elapsed time for magnetostatic solution:  11.544198274612427
+Saved: 1 14 1 1 85 85 1/14 1/13 
+flux without 00 -6.268876082613156
+full flux: -6.29797710808889
+iteration 1, error = 2.9211852037305728
+iteration 2, error = 0.30478415455607516
+iteration 3, error = 0.0023211949891014387
+iteration 4, error = 1.5525469075976133e-07
+Elapsed time for magnetostatic solution:  11.588481187820435
+Saved: 1 15 1 1 85 85 1/15 1/14 
+flux without 00 -6.264605203348814
+full flux: -6.294665526503386
+iteration 1, error = 2.800407136329516
+iteration 2, error = 0.2197718443575669
+iteration 3, error = 0.001184112647817646
+iteration 4, error = 1.8470343106136694e-06
+iteration 5, error = 1.8226737109995085e-06
+iteration 6, error = 9.237824080255918e-07
+Elapsed time for magnetostatic solution:  15.313551425933838
+Saved: 1 16 1 1 85 85 1/16 1/15 
+flux without 00 -6.260571122655248
+full flux: -6.290240319120501
+iteration 1, error = 2.7154306792921457
+iteration 2, error = 0.16611562304899985
+iteration 3, error = 0.000631815230628442
+iteration 4, error = 3.3388188631981474e-08
+Elapsed time for magnetostatic solution:  11.644360065460205
+Saved: 1 17 1 1 85 85 1/17 1/16 
+flux without 00 -6.256884186026163
+full flux: -6.285434875513118
+iteration 1, error = 2.6406544882441363
+iteration 2, error = 0.13244332988422566
+iteration 3, error = 0.0003594512455626165
+iteration 4, error = 3.570629240021563e-08
+Elapsed time for magnetostatic solution:  11.60558819770813
+Saved: 1 18 1 1 85 85 1/18 1/17 
+flux without 00 -6.253630017913462
+full flux: -6.280749965889015
+iteration 1, error = 2.561719227096069
+iteration 2, error = 0.11063564830639544
+iteration 3, error = 0.00022606536254598427
+iteration 4, error = 2.0264981346904462e-07
+Elapsed time for magnetostatic solution:  11.630834341049194
+Saved: 1 19 1 1 85 85 1/19 1/18 
+flux without 00 -6.250864014964902
+full flux: -6.2764903406450765
