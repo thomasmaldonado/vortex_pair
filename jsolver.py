@@ -110,12 +110,12 @@ if samesign:
     @jit
     def boundary_left_F(Fu, Fv):
         boundary_left_u = (N/A) * (1-jnp.cos(us))
-        boundary_left_v = jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
+        boundary_left_v = Fv[:,0] #jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
         return boundary_left_u, boundary_left_v
 else:
     @jit
     def boundary_left_F(Fu, Fv):
-        boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0))
+        boundary_left_u = Fu[:,0] #jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0))
         boundary_left_v = jnp.zeros(Fv.shape[0])
         return boundary_left_u, boundary_left_v
 
@@ -254,7 +254,58 @@ Fu_v, Fv_v = dF_dv1(Fu, Fv)
 Eu = Eu_lambdified(uu, vv, A, V_u)
 Ev = Ev_lambdified(V_v, vv, A, uu)
 
-B = B_lambdified(vv, Fv_u, Fu_v, Fu, Fv, A, uu)
+def get_B():
+    _, vps_mesh = jnp.meshgrid(us, vps, indexing = 'ij')
+    dv_mesh = dv_dvp1_lambdified(vps_mesh, A, J) * dvp
+    Jx, Jy = BP2cart(Ju, Jv, uu, vv)
+    measure = hh**2*du*dv_mesh/(2*jnp.pi)
+
+    if samesign:
+        bl_Ju, bl_Jv = jnp.zeros(NU), jnp.pad(Jv[1:,0], (1,0), constant_values=(0, 0))
+    else:
+        bl_Ju, bl_Jv = jnp.pad(Ju[1:,0], (1,0), constant_values=(0, 0)), jnp.zeros(NU)
+    bl_Jx, bl_Jy = BP2cart(bl_Ju, bl_Jv, us, 0)
+    bl_h = jnp.pad(A / (jnp.cosh(0) - jnp.cos(us[1:])), (1,0), constant_values=(0, 0))
+    bl_measure = bl_h**2 * du * dv_dvp1_lambdified(0, A, J) * dvp / (2*jnp.pi)
+
+    if samesign:
+        Ju_minus, Jv_minus = -Ju, Jv
+    else:
+        Ju_minus, Jv_minus = Ju, -Jv
+    Jx_minus, Jy_minus = BP2cart(Ju_minus, Jv_minus, uu, -vv)
+    measure_minus = measure
+
+    @jit
+    def B_func(u,v):
+        h = A / (jnp.cosh(v) - jnp.cos(u))
+        x, y = h*jnp.sinh(v), h*jnp.sin(u)
+        rx = x - xx
+        ry = y - yy
+        integrand = (Jx*ry - Jy*rx)/(rx**2 + ry**2)*measure
+        summed = jnp.sum(integrand, where = ((u!=uu) | (v!=vv)))
+
+        bl_x, bl_y = bl_h*jnp.sinh(0), bl_h*jnp.sin(us)
+        bl_rx, bl_ry = x - bl_x, y - bl_y
+        bl_integrand = ((bl_Jx*bl_ry - bl_Jy*bl_rx)/(bl_rx**2 + bl_ry**2)*bl_measure)
+        summed += jnp.sum(bl_integrand, where = (us!=0)) # + (bl_integrand[1] + bl_integrand[-1])/2
+
+        xx_minus = -xx
+        yy_minus = yy
+        rx_minus = x - xx_minus
+        ry_minus = y - yy_minus
+        integrand_minus = (Jx_minus*ry_minus - Jy_minus*rx_minus)/(rx_minus**2 + ry_minus**2)*measure_minus
+        summed += jnp.sum(integrand_minus)
+
+        return summed
+
+    B = np.zeros((NU,NV))
+    for i, u in enumerate(us):
+        for j, v in enumerate(vs):
+            B[i,j] = B_func(u,v)
+    return B
+
+B = get_B()
+
 EED = (Eu**2 + Ev**2)/2
 MED = (B**2)/2
 HED = C**2 * V**2 + J
@@ -284,221 +335,8 @@ for x in sys.argv[1:]:
     summary += x + ' '
 print(summary)
 
-
-from matplotlib import pyplot as plt
-
-@jit
-def _apply_boundaries(f, boundary_left, boundary_right):
-    bl, br = jnp.reshape(boundary_left, (f.shape[0], 1)), jnp.reshape(boundary_right, (f.shape[0], 1))
-    return jnp.concatenate((bl, f, br), axis = 1)
-us_dual = us + du/2
-vps_dual = jnp.linspace(dvp/2, 1-dvp/2, NV+1)
-vs_dual = v_of_vp_lambdified(vps_dual, A, J)
-vv_dual, uu_dual = jnp.meshgrid(vs_dual, us_dual)
-h_dual = A / (np.cosh(vv_dual)-np.cos(uu_dual))
-dv_dual = dv_dvp1_lambdified(vv_dual, A, J) * dvp
-dA_dual = h_dual**2 * du * dv_dual
-
-dv = dv_dvp1_lambdified(vv, A, J) * dvp
-
-if samesign:
-    @jit
-    def boundary_left_hF(hFu, hFv):
-        boundary_left_u = jnp.full(NU, N)
-        boundary_left_v = hFv[:,0] #=jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
-        return boundary_left_u, boundary_left_v
-else:
-    @jit
-    def boundary_left_hF(hFu, hFv):
-        boundary_left_u = hFu[:,0] # jnp.pad(Fu[1:,0], (1,0), constant_values=(N, 0))
-        boundary_left_v = jnp.zeros(NU)
-        return boundary_left_u, boundary_left_v
-
-@jit
-def boundary_right_hF(hFu,hFv):
-    return jnp.zeros(NU), jnp.zeros(NV)
-@jit
-def B_func(hFu, hFv):
-    boundary_left_hFu, boundary_left_hFv = boundary_left_hF(hFu,hFv)
-    boundary_right_hFu, boundary_right_hFv = boundary_right_hF(hFu,hFv)
-    hFu_pad = _apply_boundaries(hFu, boundary_left_hFu, boundary_right_hFu)
-    hFv_pad = _apply_boundaries(hFv, boundary_left_hFv, boundary_right_hFv)
-    line_0 = hFu_pad[:,:-1]*du
-    line_1 = (jnp.roll(hFv_pad, -1, axis = 0)[:,:-1])*dv_dual
-    line_2 = -jnp.roll(jnp.roll(hFu_pad, -1, axis = 0), -1, axis = 1)[:,:-1]*du
-    line_3 = -jnp.roll(hFv_pad, -1, axis = 0)[:,:-1]*dv_dual
-    line_int = line_0+line_1+line_2+line_3
-    B = line_int / dA_dual
-    return B
-
-
-
-def B_func2():
-    h = A / (np.cosh(vv)-np.cos(uu))
-    dvs = dv_dvp1_lambdified(vps, A, J) * dvp
-    hFu, hFv = h*Fu, h*Fv
-    boundary_left_hFu, boundary_left_hFv = boundary_left_hF(hFu,hFv)
-    boundary_right_hFu, boundary_right_hFv = boundary_right_hF(hFu,hFv)
-    hFu_pad = _apply_boundaries(hFu, boundary_left_hFu, boundary_right_hFu)
-    hFv_pad = _apply_boundaries(hFv, boundary_left_hFv, boundary_right_hFv)
-    flux = jnp.sum(hFu_pad*du, axis = 0)
-    #dflux_dv = d_dv1(flux[1:-1], flux[0], flux[-1])
-    dflux_dv = ((jnp.roll(flux, -1) - jnp.roll(flux, 1))[1:-1]/(2*dvs))
-    dB_du = h*C**2*Av
-    BuminusB0 = np.zeros((NU, NV))
-    for i in range(NU):
-        BuminusB0[i,:] = jnp.sum(dB_du[0:i,:]*du)
-    B0 = (dflux_dv - jnp.sum(BuminusB0 * h**2*du, axis = 0))/jnp.sum(h**2*du, axis = 0)
-    Bu = np.zeros((NU,NV))
-    for i in range(NU):
-        Bu[i,:] = BuminusB0[i,:] + B0[:]
-    return Bu
-#plt.imshow(B_func2())
-#plt.title('B_func2')
-#plt.show()
-#plt.imshow(B)
-#plt.title('B lambdified')
-#plt.show()
-
-hFu, hFv = h*Fu, h*Fv
-
-plt.plot(hFu[:,0])
-plt.title('hFu0')
-plt.show()
-
-#plt.imshow(B_func(hFu, hFv)[:,:(NV//2)])
-#plt.show()
-
-
-_, vps_mesh = jnp.meshgrid(us, vps, indexing = 'ij')
-dv_mesh = dv_dvp1_lambdified(vps_mesh, A, J) * dvp
-Jx, Jy = BP2cart(Ju, Jv, uu, vv)
-measure = hh**2*du*dv_mesh/(2*jnp.pi)
-
-if samesign:
-    bl_Ju, bl_Jv = jnp.zeros(NU), jnp.pad(Jv[1:,0], (1,0), constant_values=(0, 0))
-else:
-    bl_Ju, bl_Jv = jnp.pad(Ju[1:,0], (1,0), constant_values=(0, 0)), jnp.zeros(NU)
-bl_Jx, bl_Jy = BP2cart(bl_Ju, bl_Jv, us, 0)
-bl_h = jnp.pad(A / (jnp.cosh(0) - jnp.cos(us[1:])), (1,0), constant_values=(0, 0))
-bl_measure = bl_h**2 * du * dv_dvp1_lambdified(0, A, J) * dvp / (2*jnp.pi)
-@jit
-def B_func(u,v):
-    h = A / (jnp.cosh(v) - jnp.cos(u))
-    x, y = h*jnp.sinh(v), h*jnp.sin(u)
-    rx = x - xx
-    ry = y - yy
-    integrand = (Jx*ry - Jy*rx)/(rx**2 + ry**2)*measure
-    summed = jnp.sum(integrand, where = ((u!=uu) | (v!=vv)))
-
-    bl_x, bl_y = bl_h*jnp.sinh(0), bl_h*jnp.sin(us)
-    bl_rx, bl_ry = x - bl_x, y - bl_y
-    summed += jnp.sum((bl_Jx*bl_ry - bl_Jy*bl_rx)/(bl_rx**2 + bl_ry**2)*bl_measure, where = (us != 0))
-
-    return summed
-
-B = np.zeros((NU,NV))
-for i, u in enumerate(us):
-    for j, v in enumerate(vs):
-        B[i,j] = B_func(u,v)
-
-def BS():
-    h = A / (jnp.cosh(vv)-jnp.cos(uu))
-    dvs = dv_dvp1_lambdified(vps, A, J) * dvp
-    Jx, Jy = BP2cart(Ju, Jv, uu, vv)
-    xx, yy = h*np.sinh(vv), h*np.sin(uu)
-
-    B = np.zeros((NU,NV))
-
-    for i, u in enumerate(us):
-        print(i)
-        for j, v in enumerate(vs):
-            for iprime, uprime in enumerate(us):
-                for jprime, vprime in enumerate(vs):
-                        if i == iprime and j == jprime:
-                            pass
-                        else:
-                            rx = xx[i,j] - xx[iprime, jprime]
-                            ry = yy[i,j] - yy[iprime, jprime]
-                            B[i,j] += (1/(2*np.pi))*(Jx[iprime, jprime]*ry - Jy[iprime, jprime]*rx)/(rx**2 + ry**2) * h[iprime,jprime]**2*du*dvs[jprime]
-                            #B[i,j] += (Jx[iprime, jprime]*ry - Jy[iprime, jprime]*rx)/(rx**2 + ry**2) * measure[iprime, jprime]
-
-                #rx = xx[i,j] - 0
-                #ry = yy[i,j] - yy[iprime, 0]
-                #B[i,j] += ((Jx[iprime, jprime]*ry - Jy[iprime, jprime]*rx)/((rx**2 + ry**2)**(3/2))) * h[iprime,jprime]**2*du*dvs[jprime]
-
-    return B
-
-
-
-
-plt.imshow(B)
-plt.title('Biot Savart')
-plt.show()
-#plt.imshow(BS())
-#plt.title('Biot Savart unvectorized')
-#plt.show()
-
-EED = (Eu**2 + Ev**2)/2
-MED = (B**2)/2
-plt.imshow(MED)
-plt.show()
-HED = C**2 * V**2 + J
-TED = EED + MED + HED
-
-# calculate energies
-dA = np.zeros((NU, NV))
-for i in range(NU):
-    u = us[i]
-    for j in range(NV):
-        v = vs[j]
-        vp = vps[j]
-        h = A / (np.cosh(v)-np.cos(u))
-        args = (vp, A, J)
-        dv = dv_dvp1_lambdified(*args) * dvp
-        dA[i,j] = du*dv * h**2
-
-#dA = jnp.array(dA)
-dA = hh**2*du*dv_mesh
-EE = np.sum(EED * dA)
-ME = np.sum(MED * dA)
-HE = np.sum(HED * dA)
-TE = EE + ME + HE
 flux = B*dA
-
 where_flux = np.ones((NU,NV))
 where_flux[0,0] = 0
-print(jnp.sum(B*dA, where = jnp.array(where_flux)))
-flux = jnp.sum(B*dA, axis = 0)
-plt.imshow(B*dA)
-plt.title
-plt.show()
-plt.plot(flux)
-plt.show()
-print('flux (excluding vp = dvp): ', jnp.sum(flux[1:]))
-
-# save solution
-save(outputfile, K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED)
-summary = 'Saved: '
-for x in sys.argv[1:]:
-    summary += x + ' '
-print(summary)
-exit()
-
-flux_cumulative = jnp.sum(h*Fu*du, axis = 0)
-if samesign:
-    flux_cumulative_left = 2*np.pi*N
-else:
-    x = (Fu[:,0]*h[:,0])[1:]
-    test = jnp.concatenate((jnp.array([(x[0]+x[-1])/2]), x))
-    plt.plot(test)
-    plt.show()
-    Fu0 = Fu[0]
-    flux_cumulative_left = flux_cumulative[0]
-dvs = dv_dvp1_lambdified(vps, A, J) * dvp
-flux_cumulative_right = 0
-flux_cumulative = jnp.concatenate((jnp.array([flux_cumulative_left]), flux_cumulative, jnp.array([flux_cumulative_right])))
-flux_density = (flux_cumulative - jnp.roll(flux_cumulative, -1))[0:-2] / dvs
-print(jnp.sum(flux_density*dvs))
-plt.plot(flux_density)
-plt.show()
+print('flux without 00', jnp.sum(B*dA, where = jnp.array(where_flux)))
+print('full flux:', jnp.sum(B*dA))

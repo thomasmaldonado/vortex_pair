@@ -4,7 +4,7 @@ import sys
 num_Ks = 2
 num_As = 20
 
-tol = 1e-8
+tol = 1e-6
 max_iter = 30
 
 def K_func(K_idx, A_idx):
