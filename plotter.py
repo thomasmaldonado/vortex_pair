@@ -16,7 +16,7 @@ J = -4/K**4
 
 # define list of functions + labels to be plotted
 funcs = [V, Fu, Fv, C]
-funcs_cart = [EED, MED, HED, J0]
+funcs_cart = [EED, np.sqrt(2*MED), HED, J0]
 labels = ['V', 'Fu', 'Fv', 'C']
 labels_cart = ['EED', 'MED', 'HED', 'J0']
 

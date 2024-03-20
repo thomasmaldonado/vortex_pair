@@ -1,7 +1,7 @@
 ### COORDINATE TRANSFORMATIONS ###
 from jax import jit 
 import jax.numpy as jnp
-from sympy import symbols, ln, solve
+from sympy import symbols, ln, solve, sqrt, sinh
 from sympy.utilities import lambdify
 import jax
 #jax.config.update('jax_platform_name', 'cpu')
@@ -10,16 +10,26 @@ import jax
 v, vp, a, j = symbols('v v_p a j')
 
 # require v(0) = 0, v(1) = infty
-v_of_vp= ln((1+vp)/(1-vp))
+v_of_vp = ln((1+vp)/(1-vp))
+#k = (-4/j)**(1/4)
+
+#c1,c2=1,1
+#R = c1*k*(1 - vp) + c2*(k*(1 - vp))**2
+#x=a/R
+#v_of_vp = ((1/2)*ln((x + sqrt(1 + x**2))**2))
 
 # invert mapping and compute all possible derivatives up to second order
 vp_of_v = solve(v_of_vp - v, vp)[0]
+#vp_of_v = (1 + 2*k - sqrt(4*a + c1*sinh(v))/sqrt(c1*sinh(v)))/(2*k)
+#vp_of_v = (c1 + 2*c2*k - sqrt(4*a*c2 + c1**2 *sinh(v))/sqrt(sinh(v)))/(2*c2*k)
 
-dv_dvp1 = v_of_vp.diff(vp).doit().simplify()
-dv_dvp2 = v_of_vp.diff(vp,2).doit().simplify()
+#vp_of_v = 1 - ln((-a - sinh(v))**(1/3)/(-sinh(v))**(1/3))/ln(k)
 
-dvp_dv1 = vp_of_v.diff(v).doit().simplify()
-dvp_dv2 = vp_of_v.diff(v, 2).doit().simplify()
+dv_dvp1 = v_of_vp.diff(vp).doit()
+dv_dvp2 = v_of_vp.diff(vp,2).doit()
+
+dvp_dv1 = vp_of_v.diff(v).doit()
+dvp_dv2 = vp_of_v.diff(v, 2).doit()
 
 args = [vp, a, j]
 v_of_vp_lambdified = jit(lambdify(args, v_of_vp, modules='jax'))
