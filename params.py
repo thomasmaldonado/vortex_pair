@@ -1,19 +1,21 @@
 import numpy as np
 import sys
 
-num_Ks = 2
-num_As = 20
+num_Ks = 1
+num_As = 80
 
-tol = 1e-6
+tol = 1e-5
 max_iter = 30
 
 def K_func(K_idx, A_idx):
-    Ks = np.logspace(3, 4, num=num_Ks, base=2)
+    Ks = np.logspace(0, 0, num=num_Ks, base=2)
+    Ks = [1/np.sqrt(2)]
     return Ks[K_idx]
 
 def A_func(K_idx, A_idx):
     K = K_func(K_idx, A_idx)
-    As = np.logspace(1, 2, num=num_As, base = K) / 4
+    As = np.logspace(0.5, 2.5, num=num_As, base = K) / 4
+    As = np.linspace(K/4,2*K, num_As)
     return As[A_idx]
 
 if __name__ == '__main__':

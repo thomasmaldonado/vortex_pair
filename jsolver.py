@@ -234,6 +234,8 @@ magnetostatic_solution = newton(f_magnetostatic, x0)
 end = time.time()
 print("Elapsed time for magnetostatic solution: ", end - start)
 
+start_processing = time.time()
+
 # begin post-processing 
 V, Fu, Fv, C = unpack_magnetostatic(magnetostatic_solution)
 
@@ -241,9 +243,9 @@ V, Fu, Fv, C = unpack_magnetostatic(magnetostatic_solution)
 Au = Fu - (N/A) * (np.cosh(vv) - np.cos(uu))
 Av = Fv
 
-J0 = C**2 * V
-Ju = C**2 * Au
-Jv = C**2 * Av
+J0 = -C**2 * V
+Ju = -C**2 * Au
+Jv = -C**2 * Av
 
 # calculate energy densities
 V_u = d_du1(V)
@@ -340,3 +342,6 @@ where_flux = np.ones((NU,NV))
 where_flux[0,0] = 0
 print('flux without 00', jnp.sum(B*dA, where = jnp.array(where_flux)))
 print('full flux:', jnp.sum(B*dA))
+
+end_processing = time.time()
+print(end_processing - start_processing)

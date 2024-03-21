@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from files import load
 from params import num_Ks, num_As, K_func
 from matplotlib import cm
+import sys
 
 colors = plt.cm.plasma(np.linspace(0,1,num_Ks))
 
@@ -43,10 +44,25 @@ for k_idx in range(num_Ks):
             array = np.array(separations)
             base = K
             log_separations = np.emath.logn(base, array)
-            axes[idx].plot(log_separations, normalize(Es), c = colors[k_idx])
+            #axes[idx].plot(log_separations, normalize(Es), c = colors[k_idx])
+            axes[idx].plot(separations, normalize(Es), c = colors[k_idx])
         except:
             pass
-
+    if len(sys.argv)>1:
+        plt.close()
+        plt.plot(MEs)
+        plt.savefig(f'ME_{k_idx}')
+        plt.close()
+        plt.plot(HEs)
+        plt.savefig(f'HE_{k_idx}')
+        plt.close()
+        plt.plot(EEs)
+        plt.savefig(f'EE_{k_idx}')
+        plt.close()
+        plt.plot(TEs)
+        plt.savefig(f'TE_{k_idx}')
+        plt.close()
+    
 plt.subplots_adjust(hspace=0)
 axes[-1].set_xlabel('Separation')
 
@@ -58,3 +74,4 @@ norm = mpl.colors.Normalize(vmin=K_func(0,0), vmax=K_func(num_Ks-1,0))
 fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap),
              cax=cax, orientation='vertical', label=r'$\kappa$')
 plt.savefig('energies.png')
+
