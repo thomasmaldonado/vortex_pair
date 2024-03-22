@@ -19,14 +19,10 @@ export PATH=$PATH:/usr/local/cuda-12.3/bin # some mysterious line of code that t
 K_IDX=$SLURM_ARRAY_TASK_ID # (kappa index, with kappa taken from params.py)
 mkdir -p data/$K_IDX
 
-NL=1 # left winding number
-NR=1 # right winding number
-NU=85 # number of u points (resolution)
-NV=85 # number of v points (resolution)
-
 # read single separation from input
 A_IDX=$1
 OUTPUT=$2
 INPUT=$3
-python -u jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
+
+python -u jsolver.py $K_IDX $A_IDX $OUTPUT $INPUT
 python plotter.py $OUTPUT

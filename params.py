@@ -4,6 +4,12 @@ import sys
 num_Ks = 1
 num_As = 80
 
+NL=1 # left winding number
+NR=1 # right winding number
+NU=85 # number of u points (resolution)
+NV=85 # number of v points (resolution)
+NR = 2000 # number of r points (single vortex resolution)
+
 tol = 1e-5
 max_iter = 30
 

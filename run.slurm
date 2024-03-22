@@ -19,11 +19,6 @@ export PATH=$PATH:/usr/local/cuda-12.3/bin # some mysterious line of code that t
 K_IDX=$SLURM_ARRAY_TASK_ID # (kappa index, with kappa taken from params.py)
 mkdir -p data/$K_IDX
 
-NL=1 # left winding number
-NR=1 # right winding number
-NU=85 # number of u points (resolution)
-NV=85 # number of v points (resolution)
-
 # read number of separations to be swept from params.py
 NA=$(python params.py a)
 MIN_A=0
@@ -33,7 +28,7 @@ MAX_A=$((NA-1))
 for A_IDX in $(seq $MIN_A $MAX_A)
 do	
     OUTPUT=$K_IDX/$A_IDX # output file
-    python -u jsolver.py $K_IDX $A_IDX $NL $NR $NU $NV $OUTPUT $INPUT
+    python -u jsolver.py $K_IDX $A_IDX $OUTPUT $INPUT
     python plotter.py $OUTPUT
     INPUT=$OUTPUT
 done

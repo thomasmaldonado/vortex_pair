@@ -1,6 +1,6 @@
 ### BOUNDARY VALUE PROBLEM SOLVER ###
 import sys 
-from params import K_func, A_func, tol, max_iter
+from params import K_func, A_func, tol, max_iter, NL, NR, NU, NV
 from janalytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, B_lambdified, Eu_lambdified, Ev_lambdified
 from jderivatives import d_dx1, d_dx2, d_dy1, d_dy2
 from jcoords import BP2cart, cart2BP, cart2BPinfinity, v_of_vp_lambdified, dvp_dv1_lambdified, dvp_dv2_lambdified, dv_dvp1_lambdified
@@ -17,13 +17,9 @@ jax.config.update("jax_enable_x64", True)
 # command line arguments
 K_idx = int(sys.argv[1])
 A_idx = int(sys.argv[2])
-NL = int(sys.argv[3])
-NR = int(sys.argv[4])
-NU = int(sys.argv[5])
-NV = int(sys.argv[6])
-outputfile = 'data/' + sys.argv[7] + '.npy'
+outputfile = 'data/' + sys.argv[3] + '.npy'
 try:
-    inputfile = 'data/' + sys.argv[8] + '.npy'
+    inputfile = 'data/' + sys.argv[4] + '.npy'
 except:
     inputfile = None
 
@@ -47,6 +43,9 @@ dvp = vps[1]-vps[0]
 vv, uu = jnp.meshgrid(vs, us)
 hh = A / (np.cosh(vv)-np.cos(uu))
 xx, yy = hh*np.sinh(vv), hh*np.sin(uu)
+
+du = ((jnp.roll(uu, -1, axis = 0) - jnp.roll(uu, 1, axis = 0))%(2*jnp.pi))/2
+dvp = dvp*jnp.ones((NU,NV))
 
 # define coordinate transformation based on conformal mapping defined in coords.py
 NUNV = NU*NV
@@ -313,18 +312,10 @@ MED = (B**2)/2
 HED = C**2 * V**2 + J
 TED = EED + MED + HED
 
-# calculate energies
-dA = np.zeros((NU, NV))
-for i in range(NU):
-    u = us[i]
-    for j in range(NV):
-        v = vs[j]
-        vp = vps[j]
-        h = A / (np.cosh(v)-np.cos(u))
-        args = (vp, A, J)
-        dv = dv_dvp1_lambdified(*args) * dvp
-        dA[i,j] = du*dv * h**2
-dA = jnp.array(dA)
+
+_, vps_mesh = jnp.meshgrid(us, vps, indexing = 'ij')
+dv = dv_dvp1_lambdified(vps_mesh, A, J) * dvp
+dA = du*dv*hh**2
 EE = np.sum(EED * dA)
 ME = np.sum(MED * dA)
 HE = np.sum(HED * dA)
