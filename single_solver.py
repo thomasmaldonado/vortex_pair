@@ -22,7 +22,7 @@ def solve(K, N):
     max_iter = 30
 
     MAX_R = 10*K**2
-    nr = 4000
+    nr = 1000
 
     rs = jnp.linspace(0, MAX_R, nr+2)[1:-1]
     dr = rs[1]-rs[0]
@@ -146,19 +146,19 @@ def solve(K, N):
 
     # begin post-processing 
     V, F, C = unpack_magnetostatic(magnetostatic_solution)
-    from matplotlib import pyplot as plt
-    plt.scatter(rs, V)
-    plt.xlim(0,5*K**2)
-    plt.title('V')
-    plt.show()
-    plt.scatter(rs, F)
-    plt.title('F')
-    plt.xlim(0,5*K**2)
-    plt.show()
-    plt.scatter(rs, C)
-    plt.xlim(0,5*K**2)
-    plt.title('C')
-    plt.show()
+    #from matplotlib import pyplot as plt
+    #plt.scatter(rs, V)
+    #plt.xlim(0,5*K**2)
+    #plt.title('V')
+    #plt.show()
+    #plt.scatter(rs, F)
+    #plt.title('F')
+    #plt.xlim(0,5*K**2)
+    #plt.show()
+    #plt.scatter(rs, C)
+    #plt.xlim(0,5*K**2)
+    #plt.title('C')
+    #plt.show()
 
 
 
@@ -179,16 +179,16 @@ def solve(K, N):
     HED = C**2 * V**2 + J
     TED = EED + MED + HED
 
-    plt.plot(EED)
-    plt.title('EED')
-    plt.show()
-    plt.plot(MED)
-    plt.title('MED')
-    plt.show()
-    plt.plot(HED)
-    plt.title('HED')
-    plt.show()
-    plt.close()
+    #plt.plot(EED)
+    #plt.title('EED')
+    #plt.show()
+    #plt.plot(MED)
+    #plt.title('MED')
+    #plt.show()
+    #plt.plot(HED)
+    #plt.title('HED')
+    #plt.show()
+    #plt.close()
 
 
     dA = 2*np.pi*rs*dr
@@ -197,8 +197,8 @@ def solve(K, N):
     HE = jnp.sum(HED * dA)
     TE = EE + ME + HE
 
-    print(HED[-1])
-    print(C[-1], V[-1], J)
+    #print(HED[-1])
+    #print(C[-1], V[-1], J)
     print(EE, ME, HE, TE)
     # save solution
     #save(outputfile, K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED)
@@ -208,5 +208,5 @@ def solve(K, N):
     #print(summary)
 
     flux = B*dA
-    print('full flux:', jnp.sum(B*dA))
+    print('full flux single:', jnp.sum(B*dA))
     return EE, ME, HE, TE

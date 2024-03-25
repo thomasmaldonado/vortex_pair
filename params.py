@@ -2,12 +2,12 @@ import numpy as np
 import sys
 
 num_Ks = 1
-num_As = 80
+num_As = 40
 
 NL=1 # left winding number
 NR=1 # right winding number
-NU=40 # number of u points (resolution)
-NV=40 # number of v points (resolution)
+NU=95 # number of u points (resolution)
+NV=95 # number of v points (resolution)
 nr = 2000 # number of r points (single vortex resolution)
 
 tol = 1e-5
@@ -16,7 +16,7 @@ max_iter = 30
 def K_func(K_idx, A_idx):
     Ks = np.logspace(0, 0, num=num_Ks, base=2)
     Ks = [1/np.sqrt(2)]
-    Ks = [1/2]
+    Ks = [5]
     return Ks[K_idx]
 
 def A_func(K_idx, A_idx):

@@ -269,12 +269,11 @@ def get_B():
         bl_Ju, bl_Jv = jnp.zeros(NU), jnp.pad(Jv[1:,0], (1,0), constant_values=(0, 0))
     else:
         bl_Ju, bl_Jv = jnp.pad(Ju[1:,0], (1,0), constant_values=(0, 0)), jnp.zeros(NU)
-    bl_Jx, bl_Jy = BP2cart(bl_Ju, bl_Jv, us, 0)
-
     vmin = v_of_vp_lambdified(dvp, A, J)
+    bl_Jx, bl_Jy = BP2cart(bl_Ju, bl_Jv, us, vmin)
+
     bl_h = A / (jnp.cosh(vmin) - jnp.cos(us))
     bl_measure = bl_h**2 * du * dv_dvp1_lambdified(dvp, A, J) * dvp / (2*jnp.pi)
-
     if samesign:
         Ju_minus, Jv_minus = -Ju, Jv
     else:
@@ -282,7 +281,6 @@ def get_B():
     Jx_minus, Jy_minus = BP2cart(Ju_minus, Jv_minus, uu, -vv)
     measure_minus = measure
 
-    @jit
     def B_func(u,v):
         h = A / (jnp.cosh(v) - jnp.cos(u))
         x, y = h*jnp.sinh(v), h*jnp.sin(u)
@@ -294,7 +292,8 @@ def get_B():
         bl_x, bl_y = bl_h*jnp.sinh(vmin), bl_h*jnp.sin(us)
         bl_rx, bl_ry = x - bl_x, y - bl_y
         bl_integrand = ((bl_Jx*bl_ry - bl_Jy*bl_rx)/(bl_rx**2 + bl_ry**2)*bl_measure)
-        summed += jnp.sum(bl_integrand, where = (us!=0)) # + (bl_integrand[1] + bl_integrand[-1])/2
+
+        summed += jnp.sum(bl_integrand) # jnp.sum(bl_integrand, where = (us!=0)) # + (bl_integrand[1] + bl_integrand[-1])/2
 
         xx_minus = -xx
         yy_minus = yy
