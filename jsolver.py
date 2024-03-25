@@ -27,6 +27,7 @@ except:
 K = K_func(K_idx, A_idx)
 A = A_func(K_idx, A_idx)
 J = -4/K**4
+print(NL, NR)
 N = NR
 if np.abs(NL) != np.abs(NR):
     raise Exception("Only winding numbers of equal magnitude are supported")
@@ -34,7 +35,7 @@ samesign = (NL / NR == 1)
 
 #construct bipolar coordinates
 us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
-vps = np.linspace(0, 1, NV+2)[1:-1]
+vps = np.linspace(0, 1, NV+3)[2:-1]
 args = (vps, A, J)
 vs = v_of_vp_lambdified(*args)
 
@@ -44,8 +45,8 @@ vv, uu = jnp.meshgrid(vs, us)
 hh = A / (np.cosh(vv)-np.cos(uu))
 xx, yy = hh*np.sinh(vv), hh*np.sin(uu)
 
-du = ((jnp.roll(uu, -1, axis = 0) - jnp.roll(uu, 1, axis = 0))%(2*jnp.pi))/2
-dvp = dvp*jnp.ones((NU,NV))
+#du = ((jnp.roll(uu, -1, axis = 0) - jnp.roll(uu, 1, axis = 0))%(2*jnp.pi))/2
+#dvp = dvp*jnp.ones((NU,NV))
 
 # define coordinate transformation based on conformal mapping defined in coords.py
 NUNV = NU*NV
@@ -108,13 +109,16 @@ def dC_dv2(C):
 if samesign:
     @jit
     def boundary_left_F(Fu, Fv):
-        boundary_left_u = (N/A) * (1-jnp.cos(us))
+        vmin = v_of_vp_lambdified(dvp, A, J)
+        boundary_left_u = (N/A) * (jnp.cosh(vmin) - jnp.cos(us)) # (N/A) * (1-jnp.cos(us)) 
         boundary_left_v = Fv[:,0] #jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
         return boundary_left_u, boundary_left_v
 else:
     @jit
     def boundary_left_F(Fu, Fv):
-        boundary_left_u = Fu[:,0] #jnp.pad(Fu[1:,0], (1,0), constant_values=(0, 0))
+        vmin = v_of_vp_lambdified(dvp, A, J)
+        bulk_val = (N/A) * (jnp.cosh(vmin) - jnp.cos(0))
+        boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(bulk_val, 0)) # Fu[:,0] 
         boundary_left_v = jnp.zeros(Fv.shape[0])
         return boundary_left_u, boundary_left_v
 
@@ -266,8 +270,10 @@ def get_B():
     else:
         bl_Ju, bl_Jv = jnp.pad(Ju[1:,0], (1,0), constant_values=(0, 0)), jnp.zeros(NU)
     bl_Jx, bl_Jy = BP2cart(bl_Ju, bl_Jv, us, 0)
-    bl_h = jnp.pad(A / (jnp.cosh(0) - jnp.cos(us[1:])), (1,0), constant_values=(0, 0))
-    bl_measure = bl_h**2 * du * dv_dvp1_lambdified(0, A, J) * dvp / (2*jnp.pi)
+
+    vmin = v_of_vp_lambdified(dvp, A, J)
+    bl_h = A / (jnp.cosh(vmin) - jnp.cos(us))
+    bl_measure = bl_h**2 * du * dv_dvp1_lambdified(dvp, A, J) * dvp / (2*jnp.pi)
 
     if samesign:
         Ju_minus, Jv_minus = -Ju, Jv
@@ -285,7 +291,7 @@ def get_B():
         integrand = (Jx*ry - Jy*rx)/(rx**2 + ry**2)*measure
         summed = jnp.sum(integrand, where = ((u!=uu) | (v!=vv)))
 
-        bl_x, bl_y = bl_h*jnp.sinh(0), bl_h*jnp.sin(us)
+        bl_x, bl_y = bl_h*jnp.sinh(vmin), bl_h*jnp.sin(us)
         bl_rx, bl_ry = x - bl_x, y - bl_y
         bl_integrand = ((bl_Jx*bl_ry - bl_Jy*bl_rx)/(bl_rx**2 + bl_ry**2)*bl_measure)
         summed += jnp.sum(bl_integrand, where = (us!=0)) # + (bl_integrand[1] + bl_integrand[-1])/2
@@ -321,6 +327,10 @@ ME = np.sum(MED * dA)
 HE = np.sum(HED * dA)
 TE = EE + ME + HE
 
+from single_solver import solve
+EE_single, ME_single, HE_single, TE_single = solve(K, NL+NR)
+EE, ME, HE, TE = EE/EE_single, ME/ME_single, HE/HE_single, TE/TE_single
+
 # save solution
 save(outputfile, K, A, NL, NR, NU, NV, EE, ME, HE, TE, us, vs, V, Fu, Fv, C, J0, Ju, Jv, EED, MED, HED, TED)
 summary = 'Saved: '
@@ -336,3 +346,4 @@ print('full flux:', jnp.sum(B*dA))
 
 end_processing = time.time()
 print(end_processing - start_processing)
+

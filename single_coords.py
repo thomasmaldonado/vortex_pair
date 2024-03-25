@@ -1,36 +1,47 @@
 ### COORDINATE TRANSFORMATIONS ###
 from jax import jit 
 import jax.numpy as jnp
-from sympy import symbols, ln, solve, sqrt, sinh
+from sympy import symbols, ln, solve, sqrt, sinh, pi, tan
 from sympy.utilities import lambdify
 import jax
 #jax.config.update('jax_platform_name', 'cpu')
 
 # vp represents primed coordinate on the domain (0, 1)
-v, vp, a, j = symbols('v v_p a j')
+r, rp, j = symbols('r r_p j')
 
 # require v(0) = 0, v(1) = infty
-v_of_vp = ln((1+vp)/(1-vp))
+#r_of_rp = ln((1+rp)/(1-rp))
 k = (-4/j)**(1/4)
+r_of_rp = 10*k**2 *(tan(rp*pi/2))**2
+#r = R*tan(rp*pi/2)
+
+#c1,c2=1,1
+#R = c1*k*(1 - vp) + c2*(k*(1 - vp))**2
+#x=a/R
+#v_of_vp = ((1/2)*ln((x + sqrt(1 + x**2))**2))
 
 # invert mapping and compute all possible derivatives up to second order
-vp_of_v = solve(v_of_vp - v, vp)[0]
+rp_of_r = solve(r_of_rp - r, rp)[0]
+#vp_of_v = (1 + 2*k - sqrt(4*a + c1*sinh(v))/sqrt(c1*sinh(v)))/(2*k)
+#vp_of_v = (c1 + 2*c2*k - sqrt(4*a*c2 + c1**2 *sinh(v))/sqrt(sinh(v)))/(2*c2*k)
 
-dv_dvp1 = v_of_vp.diff(vp).doit()
-dv_dvp2 = v_of_vp.diff(vp,2).doit()
+#vp_of_v = 1 - ln((-a - sinh(v))**(1/3)/(-sinh(v))**(1/3))/ln(k)
 
-dvp_dv1 = vp_of_v.diff(v).doit()
-dvp_dv2 = vp_of_v.diff(v, 2).doit()
+dr_drp1 = r_of_rp.diff(rp).doit()
+dr_drp2 = r_of_rp.diff(rp,2).doit()
 
-args = [vp, a, j]
-v_of_vp_lambdified = jit(lambdify(args, v_of_vp, modules='jax'))
-dv_dvp1_lambdified = jit(lambdify(args, dv_dvp1, modules='jax'))
-dv_dvp2_lambdified = jit(lambdify(args, dv_dvp2, modules='jax'))
+drp_dr1 = rp_of_r.diff(r).doit()
+drp_dr2 = rp_of_r.diff(r, 2).doit()
 
-args = [v, a, j]
-vp_of_v_lambdified = jit(lambdify(args, vp_of_v, modules='jax'))
-dvp_dv1_lambdified = jit(lambdify(args, dvp_dv1, modules='jax'))
-dvp_dv2_lambdified = jit(lambdify(args, dvp_dv2, modules='jax'))
+args = [rp, j]
+r_of_rp_lambdified = jit(lambdify(args, r_of_rp, modules='jax'))
+dr_drp1_lambdified = jit(lambdify(args, dr_drp1, modules='jax'))
+dr_drp2_lambdified = jit(lambdify(args, dr_drp2, modules='jax'))
+
+args = [r, j]
+rp_of_r_lambdified = jit(lambdify(args, rp_of_r, modules='jax'))
+drp_dr1_lambdified = jit(lambdify(args, drp_dr1, modules='jax'))
+drp_dr2_lambdified = jit(lambdify(args, drp_dr2, modules='jax'))
 
 # convert a vector with bipolar components (Fu, Fv) at coordinates (u,v) to cartesian coordinates (Fx, Fy)
 @jit
