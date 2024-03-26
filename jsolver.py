@@ -1,7 +1,7 @@
 ### BOUNDARY VALUE PROBLEM SOLVER ###
 import sys 
 from params import K_func, A_func, tol, max_iter, NL, NR, NU, NV
-from janalytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, B_lambdified, Eu_lambdified, Ev_lambdified
+from janalytics import eq0_V_lambdified, eq0_Fx_lambdified, eq0_Fy_lambdified, eq0_C_lambdified, B_lambdified, Ex_lambdified, Ey_lambdified
 from jderivatives import d_dx1, d_dx2, d_dy1, d_dy2
 from jcoords import BP2cart, cart2BP, cart2BPinfinity, v_of_vp_lambdified, dvp_dv1_lambdified, dvp_dv2_lambdified, dv_dvp1_lambdified
 import numpy as np
@@ -11,8 +11,10 @@ import jax
 from jax.numpy import linalg as jla
 import time 
 from files import save, load
-jax.config.update("jax_enable_x64", True)
+#jax.config.update("jax_enable_x64", True)
 #jax.config.update('jax_platform_name', 'cpu')
+
+tol = 1e-5
 
 # command line arguments
 K_idx = int(sys.argv[1])
@@ -27,123 +29,163 @@ except:
 K = K_func(K_idx, A_idx)
 A = A_func(K_idx, A_idx)
 J = -4/K**4
-print(NL, NR)
 N = NR
 if np.abs(NL) != np.abs(NR):
     raise Exception("Only winding numbers of equal magnitude are supported")
 samesign = (NL / NR == 1)
 
 #construct bipolar coordinates
-us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
-vps = np.linspace(0, 1, NV+3)[2:-1]
-args = (vps, A, J)
-vs = v_of_vp_lambdified(*args)
+NX = 40
+NY = 41
+xs_pad = jnp.linspace(0, 1, NX+2) * 5*K
+ys_pad = jnp.linspace(-1,1, NY+2) * 5*K
+xs = xs_pad[1:-1]
+ys = ys_pad[1:-1]
+dx = xs[1]-xs[0]
+dy = ys[1]-ys[0]
+yy, xx = jnp.meshgrid(ys, xs)
+yy_pad, xx_pad = jnp.meshgrid(ys_pad, xs_pad)
+A = K/4
+A = 10*dx
+#A = 2*dx
+#A = 10*dx
+A_LOC = int(A / dx) - 1
+print(A_LOC)
+raveled_loc = NX*((NY-1)//2) + A_LOC
 
-du = us[1]-us[0]
-dvp = vps[1]-vps[0]
-vv, uu = jnp.meshgrid(vs, us)
-hh = A / (np.cosh(vv)-np.cos(uu))
-xx, yy = hh*np.sinh(vv), hh*np.sin(uu)
-
-#du = ((jnp.roll(uu, -1, axis = 0) - jnp.roll(uu, 1, axis = 0))%(2*jnp.pi))/2
-#dvp = dvp*jnp.ones((NU,NV))
-
-# define coordinate transformation based on conformal mapping defined in coords.py
-NUNV = NU*NV
-dvp_dv1 = np.zeros((NU, NV))
-dvp_dv2 = np.zeros((NU, NV))
-for j, v in enumerate(vs):
-    args = (v, A, J)
-    dvp_dv1[:,j] = dvp_dv1_lambdified(*args)
-    dvp_dv2[:,j] = dvp_dv2_lambdified(*args)
-vs, dvp_dv1, dvp_dv2 = jnp.array(vs), jnp.array(dvp_dv1), jnp.array(dvp_dv2)
-
+from matplotlib import pyplot as plt
+plt.imshow(xx)
+plt.show()
 # define derivatives (note the chain rule employed in the d_dv1 and d_dv2 functions that enables conformal mapping)
-@jit
-def d_du1(f):
-    boundary_left = f[-1,:]
-    boundary_right = f[0,:]
-    return d_dx1(f, du, boundary_left, boundary_right)
 
 @jit
-def d_du2(f):
-    boundary_left = f[-1,:]
-    boundary_right = f[0,:]
-    return d_dx2(f, du, boundary_left, boundary_right)
-
+def left_V(V):
+    return V[0,:]
 @jit
-def d_dv1(f, boundary_left, boundary_right):
-    df_dvp1 = d_dy1(f, dvp, boundary_left, boundary_right)
-    return df_dvp1 * dvp_dv1
-
+def right_V(V):
+    return jnp.full(V.shape[1], -1)
 @jit
-def d_dv2(f, boundary_left, boundary_right):
-    df_dvp1 = d_dy1(f, dvp, boundary_left, boundary_right)
-    df_dvp2 = d_dy2(f, dvp, boundary_left, boundary_right)
-    return df_dvp2 * dvp_dv1**2 + df_dvp1 * dvp_dv2
-
+def bottom_V(V):
+    return jnp.full(V.shape[0], -1)
 @jit
-def dV_dv1(V):
-    boundary_left = jnp.pad(V[1:,0], (1,0), constant_values=(-1, -1))
-    boundary_right = jnp.full(V.shape[0], jnp.mean(V[:,-1]))
-    return d_dv1(V, boundary_left, boundary_right)
-
+def top_V(V):
+    return jnp.full(V.shape[0], -1)
 @jit
-def dV_dv2(V):
-    boundary_left = jnp.pad(V[1:,0], (1,0), constant_values=(-1, -1))
-    boundary_right = jnp.full(V.shape[0], jnp.mean(V[:,-1]))
-    return d_dv2(V, boundary_left, boundary_right)
-
+def left_C(C):
+    return C[0,:]
 @jit
-def dC_dv1(C):
-    boundary_left = jnp.pad(C[1:,0], (1,0), constant_values=(jnp.sqrt(-J), jnp.sqrt(-J)))
-    boundary_right = jnp.zeros(C.shape[0])
-    return d_dv1(C, boundary_left, boundary_right)
-
+def right_C(C):
+    return jnp.full(C.shape[1], jnp.sqrt(-J))
 @jit
-def dC_dv2(C):
-    boundary_left = jnp.pad(C[1:,0], (1,0), constant_values=(jnp.sqrt(-J), jnp.sqrt(-J)))
-    boundary_right = jnp.zeros(C.shape[0])
-    return d_dv2(C, boundary_left, boundary_right)
+def bottom_C(C):
+    return jnp.full(C.shape[0], jnp.sqrt(-J))
+@jit
+def top_C(C):
+    return jnp.full(C.shape[0], jnp.sqrt(-J))
+@jit
+def AxminusFx(x,y):
+    return N*y/((x-A)**2+y**2)
+@jit
+def AyminusFy(x,y):
+    return -N*(x-A)/((x-A)**2+y**2)
 
 if samesign:
     @jit
-    def boundary_left_F(Fu, Fv):
-        vmin = v_of_vp_lambdified(dvp, A, J)
-        boundary_left_u = (N/A) * (jnp.cosh(vmin) - jnp.cos(us)) # (N/A) * (1-jnp.cos(us)) 
-        boundary_left_v = Fv[:,0] #jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
-        return boundary_left_u, boundary_left_v
+    def left_Fx(Fx):
+        Ax1 = AxminusFx(xs[0],ys) + Fx[0,:]
+        Ax0 = Ax1
+        Fx0 = Ax0 - AxminusFx(0, ys)
+        return Fx0
+    @jit
+    def left_Fy(Fy):
+        return (-N*A)/(A**2+ys**2)
 else:
     @jit
-    def boundary_left_F(Fu, Fv):
-        vmin = v_of_vp_lambdified(dvp, A, J)
-        bulk_val = (N/A) * (jnp.cosh(vmin) - jnp.cos(0))
-        boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(bulk_val, 0)) # Fu[:,0] 
-        boundary_left_v = jnp.zeros(Fv.shape[0])
-        return boundary_left_u, boundary_left_v
+    def left_Fx(Fx):
+        return (-N*ys)/(A**2+ys**2)
+    @jit
+    def left_Fy(Fy):
+        Ay1 = AyminusFy(xs[0],ys) + Fy[0,:]
+        Ay0 = Ay1
+        Fy0 = Ay0 - AyminusFy(0, ys)
+        return Fy0
+@jit
+def right_Fx(Fx):
+    return (-N*ys) / ((xs_pad[-1]-A)**2 + ys**2)
+@jit
+def right_Fy(Fx):
+    return (N*(xs_pad[-1]-A)) / ((xs_pad[-1]-A)**2 + ys**2)
+@jit
+def bottom_Fx(Fx):
+    return (-N*ys_pad[0]) / ((xs-A)**2 + ys_pad[0]**2)
+@jit
+def bottom_Fy(Fx):
+    return (N*(xs-A)) / ((xs-A)**2 + ys_pad[0]**2)
+@jit
+def top_Fx(Fx):
+    return (-N*ys_pad[-1]) / ((xs-A)**2 + ys_pad[-1]**2)
+@jit
+def top_Fy(Fx):
+    return (N*(xs-A)) / ((xs-A)**2 + ys_pad[-1]**2)
 
 @jit
-def dF_dv1(Fu, Fv):
-    boundary_left_u, boundary_left_v = boundary_left_F(Fu, Fv)
-    xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
-    boundary_right_u, boundary_right_v =  cart2BPinfinity(jnp.mean(xs), jnp.mean(ys), us)
-    Fu_result = d_dv1(Fu, boundary_left_u, boundary_right_u)
-    Fv_result = d_dv1(Fv, boundary_left_v, boundary_right_v)
-    return Fu_result, Fv_result
+def dV_dx1(V):
+    return d_dx1(V, dx, left_V(V), right_V(V))
+@jit
+def dV_dx2(V):
+    return d_dx2(V, dx, left_V(V), right_V(V))
+@jit
+def dV_dy1(V):
+    return d_dy1(V, dy, bottom_V(V), top_V(V))
+@jit
+def dV_dy2(V):
+    return d_dy2(V, dy, bottom_V(V), top_V(V))
 
 @jit
-def dF_dv2(Fu, Fv):
-    boundary_left_u, boundary_left_v = boundary_left_F(Fu, Fv)
-    xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
-    boundary_right_u, boundary_right_v =  cart2BPinfinity(jnp.mean(xs), jnp.mean(ys), us)
-    Fu_result = d_dv2(Fu, boundary_left_u, boundary_right_u)
-    Fv_result = d_dv2(Fv, boundary_left_v, boundary_right_v)
-    return Fu_result, Fv_result
+def dFx_dx1(Fx):
+    return d_dx1(Fx, dx, left_Fx(Fx), right_Fx(Fx))
+@jit
+def dFx_dx2(Fx):
+    return d_dx2(Fx, dx, left_Fx(Fx), right_Fx(Fx))
+@jit
+def dFx_dy1(Fx):
+    return d_dy1(Fx, dy, left_Fx(Fx), right_Fx(Fx))
+@jit
+def dFx_dy2(Fx):
+    return d_dy2(Fx, dy, left_Fx(Fx), right_Fx(Fx))
+
+@jit
+def dFy_dx1(Fy):
+    return d_dx1(Fy, dx, left_Fy(Fy), right_Fy(Fy))
+@jit
+def dFy_dx2(Fy):
+    return d_dx2(Fy, dx, left_Fy(Fy), right_Fy(Fy))
+@jit
+def dFy_dy1(Fy):
+    return d_dy1(Fy, dy, left_Fy(Fy), right_Fy(Fy))
+@jit
+def dFy_dy2(Fy):
+    return d_dy2(Fy, dy, left_Fy(Fy), right_Fy(Fy))
+
+@jit
+def dC_dx1(C):
+    return d_dx1(C, dx, left_C(C), right_C(C))
+@jit
+def dC_dx2(C):
+    return d_dx2(C, dx, left_C(C), right_C(C))
+@jit
+def dC_dy1(C):
+    return d_dy1(C, dy, bottom_C(C), top_C(C))
+@jit
+def dC_dy2(C):
+    return d_dy2(C, dy, bottom_C(C), top_C(C))
 
 # helper functions to pack/unpack and reshape the solutions
 @jit
 def pack_electrostatic(V, C):
-    return jnp.array(jnp.concatenate((jnp.ravel(V), jnp.ravel(C))))
+    C_plugged = jnp.ravel(C)
+    C_unplugged = jnp.concatenate((C_plugged[0:raveled_loc], C_plugged[raveled_loc+1:]))
+    return jnp.array(jnp.concatenate((jnp.ravel(V), jnp.ravel(C_unplugged))))
 
 @jit
 def pack_magnetostatic(V, Fu, Fv, C):
@@ -151,8 +193,10 @@ def pack_magnetostatic(V, Fu, Fv, C):
 
 @jit
 def unpack_electrostatic(V_C):
-    V = jnp.reshape(V_C[0:NUNV], (NU,NV))
-    C = jnp.reshape(V_C[NUNV:], (NU,NV))
+    V = jnp.reshape(V_C[0:NX*NY], (NX,NY))
+    C_unplugged = V_C[NX*NY:]
+    C_plugged = jnp.concatenate((C_unplugged[0:raveled_loc], jnp.array([0]), C_unplugged[raveled_loc:]))
+    C = jnp.reshape(C_plugged, (NX,NY))
     return V, C
 
 @jit
@@ -167,12 +211,12 @@ def unpack_magnetostatic(V_Fu_Fv_C):
 @jit
 def f_electrostatic(V_C):
     V, C = unpack_electrostatic(V_C)
-    V_uu = d_du2(V)
-    V_vv = dV_dv2(V)
-    C_uu = d_du2(C)
-    C_vv = dC_dv2(C)
-    eq0_V = eq0_V_lambdified(V_vv, V_uu, V, J, C, vv, A, uu)
-    eq0_C = eq0_C_lambdified(vv, 0, C_uu, 0, V, C, C_vv, 0, A, uu)
+    V_xx = dV_dx2(V)
+    V_yy = dV_dy2(V)
+    C_xx = dC_dx2(C)
+    C_yy = dC_dy2(C)
+    eq0_V = eq0_V_lambdified(V_yy, J, C, V, V_xx)
+    eq0_C = eq0_C_lambdified(C, C_yy, xx, C_xx, 0, yy, V, A, 0, 0)
     return pack_electrostatic(eq0_V, eq0_C)
 
 # define function whose root yields the magnetostatic solution
@@ -218,16 +262,76 @@ try:
     _, _, _, _, _, _, _, _, _, _, _, _, V0, Fu0, Fv0, C0, _, _, _, _, _, _, _ = load(inputfile)
 except:
     # use bulk solution as initial guess for the electrostatic problem and perform Newton's method
-    V0 = jnp.full((NU, NV), -1)
-    C0 = jnp.full((NU, NV), jnp.sqrt(-J))
+    V0 = jnp.full((NX, NY), -1)
+    C0 = jnp.full((NX, NY), jnp.sqrt(-J))
     x0 = pack_electrostatic(V0, C0)
+    print(x0.shape)
+    from matplotlib import pyplot as plt
+    V0, C0 = unpack_electrostatic(x0)
+    plt.imshow(V0)
+    plt.show()
+    plt.imshow(C0)
+    plt.show()
+
+
     start = time.time()
     electrostatic_solution = newton(f_electrostatic, x0)
     end = time.time()
+
     print("Elapsed time for electrostatic solution: ", end - start)
 
     # use electrostatic solution as initial guess for magnetostatic problem
     V0, C0 = unpack_electrostatic(electrostatic_solution)
+    from matplotlib import pyplot as plt
+    plt.imshow(V0)
+    plt.show()
+    plt.imshow(C0)
+    plt.show()
+    from scipy.interpolate import LinearNDInterpolator
+    def plot_cart(func, label):
+        save_file = 'data/' + sys.argv[1] + '_' + label + '_cart.png'
+        xs_func = []
+        ys_func = []
+        zs_func = []
+        for i, x in enumerate(xs):
+            for j, y in enumerate(ys):
+                xs_func.append(x)
+                ys_func.append(y)
+                zs_func.append(func[i,j])
+                xs_func.append(-x)
+                ys_func.append(y)
+                zs_func.append(func[i,j])
+
+        NX_interp = 1000
+        NY_interp = 1000
+        min_x, max_x = -5*K, 5*K
+        min_y, max_y = -5*K, 5*K
+        X = np.linspace(min_x, max_x, NX_interp)
+        Y = np.linspace(min_y, max_y, NY_interp)
+        X, Y = np.meshgrid(X, Y)
+        interp = LinearNDInterpolator(list(zip(xs_func, ys_func)), zs_func)
+        Z = interp(X,Y)
+        plt.pcolormesh(X,Y,Z, cmap = 'hot', shading = 'auto')
+        plt.colorbar()
+        plt.axis('equal')
+        plt.title(label)
+        plt.savefig(save_file)
+        plt.close()
+
+    plot_cart(V0, 'V')
+    plot_cart(C0, 'C')
+
+
+
+
+
+
+
+
+
+
+
+    exit()
     Fu0 , Fv0 = jnp.zeros((NU, NV)), jnp.zeros((NU, NV))
 
 # perform Newton's method 
