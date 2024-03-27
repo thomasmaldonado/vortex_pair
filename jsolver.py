@@ -1,7 +1,7 @@
 ### BOUNDARY VALUE PROBLEM SOLVER ###
 import sys 
 from params import K_func, A_func, tol, max_iter, NL, NR, NU, NV
-from janalytics import eq0_V_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, B_lambdified, Eu_lambdified, Ev_lambdified
+from janalytics import eq0_V_lambdified, eq0_C_lambdified, eq0_Fu_lambdified, eq0_Fv_lambdified, eq0_C_lambdified, B_lambdified, Eu_lambdified, Ev_lambdified, FuMinusAu_lambdified, FvMinusAv_lambdified
 from jderivatives import d_dx1, d_dx2, d_dy1, d_dy2
 from jcoords import BP2cart, cart2BP, cart2BPinfinity, v_of_vp_lambdified, dvp_dv1_lambdified, dvp_dv2_lambdified, dv_dvp1_lambdified
 import numpy as np
@@ -26,6 +26,8 @@ except:
 # define separation between vortices (=2A) and background charge density (=J)
 K = K_func(K_idx, A_idx)
 A = A_func(K_idx, A_idx)
+K = 1
+A = 1/10
 J = -4/K**4
 print(NL, NR)
 N = NR
@@ -34,111 +36,179 @@ if np.abs(NL) != np.abs(NR):
 samesign = (NL / NR == 1)
 
 #construct bipolar coordinates
-us = np.linspace(0, 2*np.pi, NU + 1)[:-1]
-vps = np.linspace(0, 1, NV+3)[2:-1]
-args = (vps, A, J)
-vs = v_of_vp_lambdified(*args)
+tol = 1e-8
+NU = 40
+NV = 41 # ODD
+NUNV = NU*NV
+if NV % 2 == 0:
+    raise Exception('Only odd NV supported')
+mask = jnp.arange(0, NV) != (NV-1)//2
 
+max_up = 10*K/2
+ups = jnp.linspace(0, max_up, NU+2)[1:-1]
+dup = ups[1]-ups[0]
+
+max_u = jnp.arccosh((A+max_up)/A)
+#us = jnp.linspace(0, max_u, NU+2)[1:-1]
+us = jnp.arccosh((A + ups)/A)
+
+#max_u = jnp.arcsinh(10*K/A)
+vs = jnp.linspace(-jnp.pi/2, jnp.pi/2, NV+2)[1:-1]
 du = us[1]-us[0]
-dvp = vps[1]-vps[0]
-vv, uu = jnp.meshgrid(vs, us)
-hh = A / (np.cosh(vv)-np.cos(uu))
-xx, yy = hh*np.sinh(vv), hh*np.sin(uu)
+dv = vs[1]-vs[0]
+uu, vv = jnp.meshgrid(us, vs, indexing = 'ij')
+xx, yy = A*jnp.cosh(uu)*jnp.cos(vv), A*jnp.sinh(uu)*jnp.sin(vv)
 
-#du = ((jnp.roll(uu, -1, axis = 0) - jnp.roll(uu, 1, axis = 0))%(2*jnp.pi))/2
-#dvp = dvp*jnp.ones((NU,NV))
+dup_du1 = A*jnp.sinh(uu)
+dup_du2 = A*jnp.cosh(uu)
+
 
 # define coordinate transformation based on conformal mapping defined in coords.py
-NUNV = NU*NV
-dvp_dv1 = np.zeros((NU, NV))
-dvp_dv2 = np.zeros((NU, NV))
-for j, v in enumerate(vs):
-    args = (v, A, J)
-    dvp_dv1[:,j] = dvp_dv1_lambdified(*args)
-    dvp_dv2[:,j] = dvp_dv2_lambdified(*args)
-vs, dvp_dv1, dvp_dv2 = jnp.array(vs), jnp.array(dvp_dv1), jnp.array(dvp_dv2)
-
 # define derivatives (note the chain rule employed in the d_dv1 and d_dv2 functions that enables conformal mapping)
-@jit
-def d_du1(f):
-    boundary_left = f[-1,:]
-    boundary_right = f[0,:]
-    return d_dx1(f, du, boundary_left, boundary_right)
+
+#d_du1 = d_dx1
+#d_du2 = d_dx2
+#d_dv1 = d_dy1
+#d_dv2 = d_dy2
 
 @jit
-def d_du2(f):
-    boundary_left = f[-1,:]
-    boundary_right = f[0,:]
-    return d_dx2(f, du, boundary_left, boundary_right)
+def d_du1(f, boundary_left, boundary_right):
+    df_dup1 = d_dx1(f, dup, boundary_left, boundary_right)
+    return df_dup1 * dup_du1
+@jit
+def d_du2(f, boundary_left, boundary_right):
+    df_dup1 = d_dx1(f, dup, boundary_left, boundary_right)
+    df_dup2 = d_dx2(f, dup, boundary_left, boundary_right)
+    return df_dup2 * dup_du1**2 + df_dup1 * dup_du2
+
+
+#@jit
+#def d_du1(f, boundary_left, boundary_right):
+#    return d_dx1(f, du, boundary_left, boundary_right)
+#@jit
+#def d_du2(f, boundary_left, boundary_right):
+#    return d_dx2(f, du, boundary_left, boundary_right)
 
 @jit
 def d_dv1(f, boundary_left, boundary_right):
-    df_dvp1 = d_dy1(f, dvp, boundary_left, boundary_right)
-    return df_dvp1 * dvp_dv1
-
+    return d_dy1(f, dv, boundary_left, boundary_right)
 @jit
 def d_dv2(f, boundary_left, boundary_right):
-    df_dvp1 = d_dy1(f, dvp, boundary_left, boundary_right)
-    df_dvp2 = d_dy2(f, dvp, boundary_left, boundary_right)
-    return df_dvp2 * dvp_dv1**2 + df_dvp1 * dvp_dv2
+    return d_dy2(f, dv, boundary_left, boundary_right)
 
+# V boundaries
+@jit
+def left_V(V):
+    return (V[0,:] + jnp.flip(V[0,:]))/2
+@jit
+def right_V(V):
+    return jnp.full(NV, -1)
+@jit
+def bottom_V(V):
+    return V[:,0]
+@jit
+def top_V(V):
+    return V[:,-1]
+
+# Fu boundaries
+@jit
+def left_Fu(Fu):
+    bl = (Fu[0,:] - jnp.flip(Fu[0,:]))/2
+    return bl # *mask + (1-mask)*Fu[0,(NV-1)//2]
+@jit
+def right_Fu(Fu):
+    return FuMinusAu_lambdified(A, vs, max_u, N)
+@jit
+def bottom_Fu(Fu):
+    return Fu[:,0]
+@jit
+def top_Fu(Fu):
+    return Fu[:,-1]
+
+# Fv boundaries
+@jit
+def left_Fv(Fv):
+    bl = (Fv[0,:] - jnp.flip(Fv[0,:]))/2
+    return bl # *mask + (1-mask)*Fv[0,(NV-1)//2]
+@jit
+def right_Fv(Fv):
+    return FvMinusAv_lambdified(A, vs, max_u, N)
+@jit
+def bottom_Fv(Fv):
+    return jnp.zeros(NU)
+@jit
+def top_Fv(Fv):
+    return jnp.zeros(NU)
+
+# C boundaries
+@jit
+def left_C(C):
+    return mask * (C[0,:] + jnp.flip(C[0,:]))/2
+@jit
+def right_C(C):
+    return jnp.full(NV, jnp.sqrt(-J))
+@jit
+def bottom_C(C):
+    return C[:,0]
+@jit
+def top_C(C):
+    return C[:,-1]
+
+# V derivatives
+@jit
+def dV_du1(V):
+    return d_du1(V, left_V(V), right_V(V))
+@jit
+def dV_du2(V):
+    return d_du2(V, left_V(V), right_V(V))
 @jit
 def dV_dv1(V):
-    boundary_left = jnp.pad(V[1:,0], (1,0), constant_values=(-1, -1))
-    boundary_right = jnp.full(V.shape[0], jnp.mean(V[:,-1]))
-    return d_dv1(V, boundary_left, boundary_right)
-
+    return d_dv1(V, bottom_V(V), top_V(V))
 @jit
 def dV_dv2(V):
-    boundary_left = jnp.pad(V[1:,0], (1,0), constant_values=(-1, -1))
-    boundary_right = jnp.full(V.shape[0], jnp.mean(V[:,-1]))
-    return d_dv2(V, boundary_left, boundary_right)
+    return d_dv2(V, bottom_V(V), top_V(V))
 
+# Fu derivatives
+@jit
+def dFu_du1(Fu):
+    return d_du1(Fu, left_Fu(Fu), right_Fu(Fu))
+@jit
+def dFu_du2(Fu):
+    return d_du2(Fu, left_Fu(Fu), right_Fu(Fu))
+@jit
+def dFu_dv1(Fu):
+    return d_dv1(Fu, bottom_Fu(Fu), top_Fu(Fu))
+@jit
+def dFu_dv2(Fu):
+    return d_dv2(Fu, bottom_Fu(Fu), top_Fu(Fu))
+
+# Fv derivatives
+@jit
+def dFv_du1(Fv):
+    return d_du1(Fv, left_Fv(Fv), right_Fv(Fv))
+@jit
+def dFv_du2(Fv):
+    return d_du2(Fv, left_Fv(Fv), right_Fv(Fv))
+@jit
+def dFv_dv1(Fv):
+    return d_dv1(Fv, bottom_Fv(Fv), top_Fv(Fv))
+@jit
+def dFv_dv2(Fv):
+    return d_dv2(Fv, bottom_Fv(Fv), top_Fv(Fv))
+
+# C derivatives
+@jit
+def dC_du1(C):
+    return d_du1(C, left_C(C), right_C(C))
+@jit
+def dC_du2(C):
+    return d_du2(C, left_C(C), right_C(C))
 @jit
 def dC_dv1(C):
-    boundary_left = jnp.pad(C[1:,0], (1,0), constant_values=(jnp.sqrt(-J), jnp.sqrt(-J)))
-    boundary_right = jnp.zeros(C.shape[0])
-    return d_dv1(C, boundary_left, boundary_right)
-
+    return d_dv1(C, bottom_C(C), top_C(C))
 @jit
 def dC_dv2(C):
-    boundary_left = jnp.pad(C[1:,0], (1,0), constant_values=(jnp.sqrt(-J), jnp.sqrt(-J)))
-    boundary_right = jnp.zeros(C.shape[0])
-    return d_dv2(C, boundary_left, boundary_right)
-
-if samesign:
-    @jit
-    def boundary_left_F(Fu, Fv):
-        vmin = v_of_vp_lambdified(dvp, A, J)
-        boundary_left_u = (N/A) * (jnp.cosh(vmin) - jnp.cos(us)) # (N/A) * (1-jnp.cos(us)) 
-        boundary_left_v = Fv[:,0] #jnp.pad(Fv[1:,0], (1,0), constant_values=(0, 0))
-        return boundary_left_u, boundary_left_v
-else:
-    @jit
-    def boundary_left_F(Fu, Fv):
-        vmin = v_of_vp_lambdified(dvp, A, J)
-        bulk_val = (N/A) * (jnp.cosh(vmin) - jnp.cos(0))
-        boundary_left_u = jnp.pad(Fu[1:,0], (1,0), constant_values=(bulk_val, 0)) # Fu[:,0] 
-        boundary_left_v = jnp.zeros(Fv.shape[0])
-        return boundary_left_u, boundary_left_v
-
-@jit
-def dF_dv1(Fu, Fv):
-    boundary_left_u, boundary_left_v = boundary_left_F(Fu, Fv)
-    xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
-    boundary_right_u, boundary_right_v =  cart2BPinfinity(jnp.mean(xs), jnp.mean(ys), us)
-    Fu_result = d_dv1(Fu, boundary_left_u, boundary_right_u)
-    Fv_result = d_dv1(Fv, boundary_left_v, boundary_right_v)
-    return Fu_result, Fv_result
-
-@jit
-def dF_dv2(Fu, Fv):
-    boundary_left_u, boundary_left_v = boundary_left_F(Fu, Fv)
-    xs, ys = BP2cart(Fu[:,-1],  Fv[:,-1], us, vs[-1])
-    boundary_right_u, boundary_right_v =  cart2BPinfinity(jnp.mean(xs), jnp.mean(ys), us)
-    Fu_result = d_dv2(Fu, boundary_left_u, boundary_right_u)
-    Fv_result = d_dv2(Fv, boundary_left_v, boundary_right_v)
-    return Fu_result, Fv_result
+    return d_dv2(C, bottom_C(C), top_C(C))
 
 # helper functions to pack/unpack and reshape the solutions
 @jit
@@ -167,31 +237,31 @@ def unpack_magnetostatic(V_Fu_Fv_C):
 @jit
 def f_electrostatic(V_C):
     V, C = unpack_electrostatic(V_C)
-    V_uu = d_du2(V)
+    V_uu = dV_du2(V)
     V_vv = dV_dv2(V)
-    C_uu = d_du2(C)
+    C_uu = dC_du2(C)
     C_vv = dC_dv2(C)
-    eq0_V = eq0_V_lambdified(V_vv, V_uu, V, J, C, vv, A, uu)
-    eq0_C = eq0_C_lambdified(vv, 0, C_uu, 0, V, C, C_vv, 0, A, uu)
+    eq0_V = eq0_V_lambdified(J, C, V_uu, V_vv, uu, V, vv, A)
+    eq0_C = eq0_C_lambdified(C_uu, C, vv, V, 0, 0, C_vv, uu, 0, A)
     return pack_electrostatic(eq0_V, eq0_C)
 
 # define function whose root yields the magnetostatic solution
 @jit
 def f_magnetostatic(V_Fu_Fv_C):
     V, Fu, Fv, C = unpack_magnetostatic(V_Fu_Fv_C)
-    V_uu = d_du2(V)
+    V_uu = dV_du2(V)
     V_vv = dV_dv2(V)
-    Fu_u, Fv_u = d_du1(Fu), d_du1(Fv)
-    Fu_v, Fv_v = dF_dv1(Fu, Fv)
-    Fv_uu = d_du2(Fv)
-    Fu_uv, Fv_uv = d_du1(Fu_v), d_du1(Fv_v)
-    Fu_vv, _ = dF_dv2(Fu, Fv)
-    C_uu = d_du2(C)
+    Fu_u, Fv_u = dFu_du1(Fu), dFv_du1(Fv)
+    Fu_v, Fv_v = dFu_dv1(Fu), dFv_dv1(Fv)
+    Fu_uv, Fv_uv = dFu_dv1(Fu_u), dFv_dv1(Fv_u)
+    Fu_vv = dFu_dv2(Fu)
+    Fv_uu = dFv_du2(Fv)
+    C_uu = dC_du2(C)
     C_vv = dC_dv2(C)
-    eq0_V = eq0_V_lambdified(V_vv, V_uu, V, J, C, vv, A, uu)
-    eq0_Fu = eq0_Fu_lambdified(C, N, uu, Fv_v, Fv_uv, vv, Fu_vv, Fv_u, A, Fu)
-    eq0_Fv = eq0_Fv_lambdified(vv, Fu_u, Fu_v, Fv_uu, C, Fv, A, Fu_uv, uu)
-    eq0_C = eq0_C_lambdified(vv, Fu, C_uu, N, V, C, C_vv, Fv, A, uu)
+    eq0_V = eq0_V_lambdified(J, C, V_uu, V_vv, uu, V, vv, A)
+    eq0_Fu = eq0_Fu_lambdified(Fu_v, Fv_v, C, Fv_u, Fu_vv, vv, N, Fu, uu, Fv_uv, Fv, A)
+    eq0_Fv = eq0_Fv_lambdified(Fu_uv, Fu_v, Fu_u, C, Fv_u, Fv_uu, vv, N, Fu, uu, Fv, A)
+    eq0_C = eq0_C_lambdified(C_uu, C, vv, V, N, Fu, C_vv, uu, Fv, A)
     return pack_magnetostatic(eq0_V, eq0_Fu, eq0_Fv, eq0_C)
 
 # Newton's method for a function f, initial guess x_0, tolerance tol, and maximum number of iterations max_iter
@@ -220,15 +290,26 @@ except:
     # use bulk solution as initial guess for the electrostatic problem and perform Newton's method
     V0 = jnp.full((NU, NV), -1)
     C0 = jnp.full((NU, NV), jnp.sqrt(-J))
-    x0 = pack_electrostatic(V0, C0)
-    start = time.time()
-    electrostatic_solution = newton(f_electrostatic, x0)
-    end = time.time()
-    print("Elapsed time for electrostatic solution: ", end - start)
+    #x0 = pack_electrostatic(V0, C0)
+    #start = time.time()
+    #electrostatic_solution = newton(f_electrostatic, x0)
+    #end = time.time()
+    #print("Elapsed time for electrostatic solution: ", end - start)
 
     # use electrostatic solution as initial guess for magnetostatic problem
-    V0, C0 = unpack_electrostatic(electrostatic_solution)
-    Fu0 , Fv0 = jnp.zeros((NU, NV)), jnp.zeros((NU, NV))
+    from matplotlib import pyplot as plt
+    from scipy.interpolate import LinearNDInterpolator
+
+    #V0, C0 = unpack_electrostatic(electrostatic_solution)
+    #plt.imshow(V0)
+    #plt.show()
+    #plt.imshow(C0)
+    #plt.show()
+    #plot_cart((A*(jnp.cosh(uu)-jnp.cos(vv))), 'r')
+    #V0 = jnp.full((NU, NV), -1)
+    #C0 = jnp.full((NU, NV), jnp.sqrt(-J))
+    Fu0, Fv0 = FuMinusAu_lambdified(A, vv, uu, N), FvMinusAv_lambdified(A, vv, uu, N)
+    #Fu0 , Fv0 = jnp.zeros((NU, NV)), jnp.zeros((NU, NV))
 
 # perform Newton's method 
 x0 = pack_magnetostatic(V0, Fu0, Fv0, C0)
@@ -241,7 +322,94 @@ start_processing = time.time()
 
 # begin post-processing 
 V, Fu, Fv, C = unpack_magnetostatic(magnetostatic_solution)
+plt.imshow(V)
+plt.savefig('V')
+plt.close()
+plt.imshow(Fu)
+plt.savefig('Fu')
+plt.close()
+plt.imshow(Fv)
+plt.savefig('Fv')
+plt.close()
+plt.imshow(C)
+plt.savefig('C')
+plt.close()
 
+# plot in cartesian space
+def plot_cart(func, label):
+    #save_file = 'data/' + sys.argv[1] + '_' + label + '_cart.png'
+    #xs = []
+    #ys = []
+    #zs = []
+    xs = jnp.ravel(xx)
+    ys = jnp.ravel(yy)
+    zs = jnp.ravel(func)
+    xs = jnp.concatenate((xs, -xs))
+    ys = jnp.concatenate((ys, ys))
+    zs = jnp.concatenate((zs, zs))
+    #for i, u in enumerate(us):
+    #    for j, v in enumerate(vs):
+    #        h = A / (np.cosh(v)-np.cos(u))
+    #        x = h*np.sinh(v)
+    #        y = h*np.sin(u)
+    #        xs.append(x)
+    #        ys.append(y)
+    #        zs.append(func[i,j])
+    #        h = A / (np.cosh(-v)-np.cos(u))
+    #        x = h*np.sinh(-v)
+    #        y = h*np.sin(u)
+    #        xs.append(x)
+    #        ys.append(y)
+    #        zs.append(func[i,j])
+
+    NX = 1000
+    NY = 1000
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+    #bulk_val = 0
+    #if label == 'V':
+    #    bulk_val = -1
+    #if label == 'C':
+    #    bulk_val = np.sqrt(-J)
+    #if label == 'J0':
+    #    bulk_val = -J
+    #for x in [min_x, max_x]:
+    #    for y in [min_y, max_y]:
+    #        xs.append(x)
+    #        ys.append(y)
+    #        zs.append(bulk_val)
+    X = np.linspace(min_x, max_x, NX)
+    Y = np.linspace(min_y, max_y, NY)
+    X, Y = np.meshgrid(X, Y)
+    interp = LinearNDInterpolator(list(zip(xs, ys)), zs)
+    Z = interp(X,Y)
+    plt.pcolormesh(X,Y,Z, cmap = 'hot', shading = 'auto')
+    plt.colorbar()
+    #plt.axis('equal')
+    #plt.title(label)
+    plt.savefig(label)
+    plt.close()
+plt.scatter(vs, left_Fu(Fu))
+plt.title('left Fu')
+plt.savefig('left_Fu')
+plt.close()
+plt.scatter(vs, left_Fv(Fv))
+plt.title('left Fv')
+plt.savefig('left_Fv')
+plt.close()
+
+plot_cart(V, 'V_cart')
+plot_cart(Fu, 'Fu_cart')
+plot_cart(Fv, 'Fv_cart')
+plot_cart(C, 'C_cart')
+Fu_u, Fv_u = dFu_du1(Fu), dFv_du1(Fv)
+Fu_v, Fv_v = dFu_dv1(Fu), dFv_dv1(Fv)
+B = B_lambdified(Fu_v, Fv_u, vv, Fu, uu, Fv, A)
+plt.imshow(B)
+plt.savefig('B')
+plt.close()
+plot_cart(B, 'B_cart')
+exit()
 # calculate supercurrent
 Au = Fu - (N/A) * (np.cosh(vv) - np.cos(uu))
 Av = Fv
